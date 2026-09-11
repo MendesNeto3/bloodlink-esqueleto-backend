@@ -1,0 +1,32 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: bloodlink-centro
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bloodlink
+    username: bloodlink
+    password: dev_only
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+    schemas: public
+    locations: classpath:db/migration
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never # não vazar detalhes de infra numa rota pública

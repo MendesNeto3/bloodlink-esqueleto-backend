@@ -1,0 +1,30 @@
+# Este compose sobe só a INFRA (Postgres, RabbitMQ, MailHog). Os 6 serviços
+# Java (gateway, api, estoque, checkin, centro, notificacao) rodam via
+# "mvn spring-boot:run" em processos separados durante o desenvolvimento —
+# ver README.md pras portas de cada um.
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: bloodlink
+      POSTGRES_USER: bloodlink
+      POSTGRES_PASSWORD: dev_only
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672" # painel: http://localhost:15672 (guest/guest)
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025" # caixa de entrada: http://localhost:8025
+
+volumes:
+  pgdata:

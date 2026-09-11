@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="bloodlink-auth-support" />
+        <module name="bloodlink-api" />
+        <module name="bloodlink-notificacao" />
+        <module name="bloodlink-gateway" />
+        <module name="bloodlink-common" />
+        <module name="bloodlink-centro" />
+        <module name="bloodlink-checkin" />
+        <module name="bloodlink-estoque" />
+        <module name="bloodlink-tenant-starter" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="bloodlink-api" options="-parameters" />
+      <module name="bloodlink-auth-support" options="-parameters" />
+      <module name="bloodlink-centro" options="-parameters" />
+      <module name="bloodlink-checkin" options="-parameters" />
+      <module name="bloodlink-common" options="-parameters" />
+      <module name="bloodlink-estoque" options="-parameters" />
+      <module name="bloodlink-gateway" options="-parameters" />
+      <module name="bloodlink-notificacao" options="-parameters" />
+      <module name="bloodlink-tenant-starter" options="-parameters" />
+    </option>
+  </component>
+</project>

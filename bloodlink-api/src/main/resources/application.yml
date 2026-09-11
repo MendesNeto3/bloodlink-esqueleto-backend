@@ -1,0 +1,62 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: bloodlink-api
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bloodlink
+    username: bloodlink
+    password: dev_only
+
+  jpa:
+    hibernate:
+      ddl-auto: validate # schema controlado 100% pelo Flyway
+    open-in-view: false
+    properties:
+      hibernate:
+        multiTenancy: SCHEMA
+        # Resolvers agora vêm do bloodlink-tenant-starter (autoconfigurado) —
+        # os FQCN abaixo apontam pro pacote compartilhado, não mais local.
+        tenant_identifier_resolver: com.bloodlink.tenant.TenantIdentifierResolver
+        multi_tenant_connection_provider: com.bloodlink.tenant.SchemaConnectionProvider
+
+  # A tabela centro não existe mais aqui — ela migrou para o bloodlink-centro.
+  # As migrations de "tenant" (agendamento) rodam sob demanda via
+  # /internal/schemas/provisionar, chamado pelo bloodlink-centro.
+  flyway:
+    enabled: false
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+logging:
+  level:
+    com.bloodlink: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never # não vazar detalhes de infra numa rota pública
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      centro:
+        sliding-window-size: 10
+        failure-rate-threshold: 50       # abre o circuito se 50% das últimas 10 chamadas falharem
+        wait-duration-in-open-state: 15s # espera 15s antes de tentar de novo
+        permitted-number-of-calls-in-half-open-state: 3
+      estoque:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 15s
+        permitted-number-of-calls-in-half-open-state: 3

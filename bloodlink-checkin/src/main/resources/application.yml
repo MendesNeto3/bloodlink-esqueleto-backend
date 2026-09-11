@@ -1,0 +1,38 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: bloodlink-checkin
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bloodlink
+    username: bloodlink
+    password: dev_only
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      multiTenancy: SCHEMA
+    open-in-view: false
+  flyway:
+    enabled: false
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 2000
+        default-requeue-rejected: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never # não vazar detalhes de infra numa rota pública

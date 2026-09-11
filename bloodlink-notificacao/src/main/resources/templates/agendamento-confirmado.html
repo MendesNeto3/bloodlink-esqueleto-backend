@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body style="font-family: sans-serif; color: #0F0F0F;">
+    <h2>Agendamento confirmado</h2>
+    <p th:text="'Olá, ' + ${doadorNome} + '!'">Olá!</p>
+    <p>Sua doação foi agendada com sucesso:</p>
+    <ul>
+        <li><strong>Local:</strong> <span th:text="${centroNome}">Centro</span></li>
+        <li><strong>Data e hora:</strong> <span th:text="${#temporals.format(dataHora, 'dd/MM/yyyy HH:mm')}">data</span></li>
+    </ul>
+    <p>Obrigado por doar. Você vai receber um lembrete no dia da doação.</p>
+</body>
+</html>

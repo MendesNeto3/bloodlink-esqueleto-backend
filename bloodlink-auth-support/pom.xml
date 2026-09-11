@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.bloodlink</groupId>
+        <artifactId>bloodlink-parent</artifactId>
+        <version>0.1.0</version>
+    </parent>
+    <artifactId>bloodlink-auth-support</artifactId>
+    <!-- Biblioteca compartilhada: gera/valida o JWT. Usada pelo bloodlink-centro
+         (emite o token no login) e pelo bloodlink-gateway (valida em toda
+         requisição). Só a lógica de assinatura mora aqui — a decisão de QUEM
+         pode logar continua em cada serviço que a usa. -->
+    <properties>
+        <jjwt.version>0.12.6</jjwt.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+</project>
