@@ -36,10 +36,5 @@ public class UserRoleContextFilter implements Filter {
             return null;
         }
     }
-    dasdas
-    dasda
-            sdas
-    das
-
 }
 
