@@ -43,7 +43,7 @@ public class JwtSupport {
     public String gerarToken(String subject, String centroId, String papel) {
         Instant agora = Instant.now();
         return Jwts.builder()
-                .id(UUID.randomUUID().toString()) // jti — habilita revogação futura por id
+                .id(UUID.randomUUID().toString())
                 .issuer(ISSUER)
                 .subject(subject)
                 .claim(CLAIM_CENTRO_ID, centroId)
@@ -54,12 +54,10 @@ public class JwtSupport {
                 .compact();
     }
 
-    /** @return o centroId da claim, ou null se o token for inválido/expirado. */
     public String validarEExtrairCentroId(String token) {
         return extrairClaim(token, CLAIM_CENTRO_ID);
     }
 
-    /** @return o papel da claim, ou null se o token for inválido/expirado. */
     public String validarEExtrairPapel(String token) {
         return extrairClaim(token, CLAIM_PAPEL);
     }

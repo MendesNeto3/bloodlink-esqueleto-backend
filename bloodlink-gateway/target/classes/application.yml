@@ -1,0 +1,41 @@
+server:
+  port: 8000 # o frontend fala só com essa porta — nunca direto com um serviço
+
+spring:
+  application:
+    name: bloodlink-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: agendamentos
+          uri: http://bloodlink-api:8080
+          predicates:
+            - Path=/api/agendamentos/**
+
+        - id: estoque
+          uri: http://bloodlink-estoque:8082
+          predicates:
+            - Path=/api/estoque/**
+
+        - id: checkin
+          uri: http://bloodlink-checkin:8083
+          predicates:
+            - Path=/api/checkin/**
+
+        - id: centros
+          uri: http://bloodlink-centro:8084
+          predicates:
+            - Path=/api/centros/**
+
+      # rotas /internal/** NÃO são registradas aqui de propósito — só devem
+      # ser alcançáveis dentro da rede interna (docker network), nunca
+      # passando pelo Gateway público. Ver README.
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never # não vazar detalhes de infra numa rota pública

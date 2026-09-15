@@ -1,0 +1,40 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: bloodlink-estoque
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bloodlink
+    username: bloodlink
+    password: dev_only
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      # o bloodlink-tenant-starter registra multiTenancy=SCHEMA e os
+      # resolvers automaticamente — nada a configurar aqui além disso
+      multiTenancy: SCHEMA
+    open-in-view: false
+  flyway:
+    enabled: false # este serviço não usa o Flyway "global" — migrations tenant rodam via /internal/schemas/provisionar
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 2000
+        default-requeue-rejected: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never # não vazar detalhes de infra numa rota pública

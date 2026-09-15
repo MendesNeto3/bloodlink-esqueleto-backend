@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body style="font-family: sans-serif; color: #0F0F0F;">
+    <h2>Hoje é o seu dia de doação</h2>
+    <p th:text="'Olá, ' + ${doadorNome} + '!'">Olá!</p>
+    <p>Este é o lembrete da sua doação marcada para hoje:</p>
+    <ul>
+        <li><strong>Local:</strong> <span th:text="${centroNome}">Centro</span></li>
+        <li><strong>Horário:</strong> <span th:text="${#temporals.format(dataHora, 'HH:mm')}">hora</span></li>
+    </ul>
+    <p>Contamos com você. Obrigado por salvar vidas.</p>
+</body>
+</html>
