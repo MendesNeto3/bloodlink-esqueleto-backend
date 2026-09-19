@@ -33,6 +33,11 @@ public class UsuarioRepositoryAdapter implements UsuarioRepositoryPort {
         return toDomain(salvo);
     }
 
+    @Override
+    public Optional<Usuario> buscarPorId(UUID id) {
+        return usuarioJpaRepository.findById(id).map(this::toDomain);
+    }
+
     private Usuario toDomain(UsuarioJpaEntity entity) {
         return new Usuario(entity.getId(), entity.getEmail(), entity.getSenhaHash(),
                 Papel.valueOf(entity.getPapel()), entity.getCentroId());

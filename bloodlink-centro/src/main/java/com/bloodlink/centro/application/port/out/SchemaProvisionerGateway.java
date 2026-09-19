@@ -1,4 +1,5 @@
 package com.bloodlink.centro.application.port.out;
 
-public class SchemaProvisionerGateway {
+public interface SchemaProvisionerGateway {
+    void provisionarEmtodosOsServicos(String schema);
 }

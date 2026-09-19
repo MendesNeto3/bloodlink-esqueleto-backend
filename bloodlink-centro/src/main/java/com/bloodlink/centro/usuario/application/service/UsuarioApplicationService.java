@@ -4,7 +4,7 @@ import com.bloodlink.auth.JwtSupport;
 import com.bloodlink.centro.application.port.out.CentroRepositoryPort;
 import com.bloodlink.centro.domain.Centro;
 import com.bloodlink.centro.usuario.application.port.in.AutenticarUsuarioUseCase;
-import com.bloodlink.centro.usuario.application.port.in.CadastrarUsuarioUseCase;
+import com.bloodlink.centro.usuario.application.port.in.UsuarioUseCase;
 import com.bloodlink.centro.usuario.application.port.out.UsuarioRepositoryPort;
 import com.bloodlink.centro.usuario.domain.Usuario;
 import com.bloodlink.common.correlation.Papel;
@@ -14,12 +14,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 
 @Service
-public class UsuarioApplicationService implements CadastrarUsuarioUseCase , AutenticarUsuarioUseCase {
+public class UsuarioApplicationService implements UsuarioUseCase, AutenticarUsuarioUseCase {
     private static final Logger log = LoggerFactory.getLogger(UsuarioApplicationService.class.getName());
 
     private final UsuarioRepositoryPort usuarioRepositoryPort;
@@ -45,10 +46,19 @@ public class UsuarioApplicationService implements CadastrarUsuarioUseCase , Aute
             throw new AutenticacaoIndisponivelException();
         }
 
+        if (usuarioEncontrado.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Usuario usuario = usuarioEncontrado.get();
+
         boolean senhaValida;
+
         try {
-            senhaValida = usuarioEncontrado.isPresent()
-                    && bCryptPasswordEncoder.matches(senha, usuarioEncontrado.get().senhaHash());
+            senhaValida = bCryptPasswordEncoder.matches(
+                    senha,
+                    usuario.senhaHash()
+            );
         } catch (IllegalArgumentException e) {
             log.warn("Hash de senha malformado para o email informado", e);
             senhaValida = false;
@@ -58,24 +68,33 @@ public class UsuarioApplicationService implements CadastrarUsuarioUseCase , Aute
             return Optional.empty();
         }
 
-        Usuario usuario = usuarioEncontrado.get();
-
         Centro centro;
 
         try {
             centro = centroRepositoryPort.buscarPorId(usuario.centroId())
-                    .orElseThrow(() -> new IllegalStateException("Centro não encontrado: " + usuario.centroId()));
+                    .orElseThrow(() ->
+                            new IllegalStateException(
+                                    "Centro não encontrado: " + usuario.centroId()
+                            )
+                    );
         } catch (Exception e) {
-            log.error("Falha ao buscar centro do usuário durante autenticação", e);
+            log.error(
+                    "Falha ao buscar centro do usuário durante autenticação",
+                    e
+            );
             throw new AutenticacaoIndisponivelException();
         }
 
         String schemaSemPrefixo = centro.schema().replace("centro_", "");
-        String tokenAcesso = support.gerarToken(usuario.email(), schemaSemPrefixo, usuario.papel().name());
+
+        String tokenAcesso = support.gerarToken(
+                usuario.email(),
+                schemaSemPrefixo,
+                usuario.papel().toString()
+        );
 
         return Optional.of(tokenAcesso);
     }
-
 
     @Override
     public Usuario cadastrar(String email, String senha, Papel papel, UUID centroId) {
@@ -83,11 +102,36 @@ public class UsuarioApplicationService implements CadastrarUsuarioUseCase , Aute
             String senhaHash = bCryptPasswordEncoder.encode(senha);
             Usuario novoUsuario = new Usuario(null, email, senhaHash, papel, centroId);
             return usuarioRepositoryPort.salvar(novoUsuario);
-        } catch (DataIntegrityViolationException e ) {
+        } catch (DataIntegrityViolationException e) {
             throw new EmailJaCadastradoException(email);
         } catch (Exception e) {
             log.error("Falha inesperada ao cadastrar usuário", e);
             throw new CadastroIndisponivelException();
         }
+    }
+
+    @Override
+    public Usuario atualizarPapel(UUID usuarioId, Papel novoPapel) {
+        Usuario atualizado = usuarioRepositoryPort.buscarPorId(usuarioId)
+                .map(usuario -> new Usuario(
+                        usuario.id(),
+                        usuario.email(),
+                        usuario.senhaHash(),
+                        novoPapel,
+                        usuario.centroId()
+                ))
+                .map(usuarioRepositoryPort::salvar)
+                .orElseThrow(UsuarioNaoEncontradoException::new);
+
+        log.info("Papel atualizado: usuarioId={}, novoPapel={}", atualizado.id(), atualizado.papel());
+
+        return atualizado;
+    }
+
+    @Override
+    public List<Usuario> listarPorCentro(UUID centroId) {
+        List<Usuario> usuarioList = usuarioRepositoryPort.usariosPorCentro(centroId);
+
+
     }
 }

@@ -2,7 +2,7 @@ package com.bloodlink.centro.usuario.adapter.in;
 
 import com.bloodlink.centro.usuario.adapter.in.dto.CadastrarUsuarioRequest;
 import com.bloodlink.centro.usuario.adapter.in.dto.UsuarioResponse;
-import com.bloodlink.centro.usuario.application.port.in.CadastrarUsuarioUseCase;
+import com.bloodlink.centro.usuario.application.port.in.UsuarioUseCase;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,18 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
 
-    private final CadastrarUsuarioUseCase cadastrarUsuarioUseCase;
+    private final UsuarioUseCase usuarioUseCase;
 
-    public UsuarioController(CadastrarUsuarioUseCase cadastrarUsuarioUseCase) {
-        this.cadastrarUsuarioUseCase = cadastrarUsuarioUseCase;
+    public UsuarioController(UsuarioUseCase usuarioUseCase) {
+        this.usuarioUseCase = usuarioUseCase;
     }
 
     @PostMapping
     public ResponseEntity<UsuarioResponse> cadastrar(@RequestBody @Valid CadastrarUsuarioRequest request) {
-        var usuario = cadastrarUsuarioUseCase.cadastrar(request.email(), request.senha(), request.papel(), request.centroId());
+        var usuario = usuarioUseCase.cadastrar(request.email(), request.senha(), request.papel(), request.centroId());
         return ResponseEntity.status(HttpStatus.CREATED).body(UsuarioResponse.de(usuario));
     }
-
-    @PostMapping
-    public ResponseEntity
 }
