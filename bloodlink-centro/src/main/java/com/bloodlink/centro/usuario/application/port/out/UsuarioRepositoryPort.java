@@ -15,4 +15,5 @@ public interface UsuarioRepositoryPort {
     Optional<Usuario> buscarPorId(UUID id);
 
     List<Usuario> usariosPorCentro(UUID centroId);
+
 }

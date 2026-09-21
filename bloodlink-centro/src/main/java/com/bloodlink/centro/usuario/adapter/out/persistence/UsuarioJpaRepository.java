@@ -10,5 +10,4 @@ public interface UsuarioJpaRepository extends JpaRepository<UsuarioJpaEntity, UU
 
     Optional<UsuarioJpaEntity> findByEmail(String email);
 
-    List<UsuarioJpaEntity> buscarPorCentroId (UUID centroId);
-}
+    List<UsuarioJpaEntity> findByCentroId(UUID centroId);}

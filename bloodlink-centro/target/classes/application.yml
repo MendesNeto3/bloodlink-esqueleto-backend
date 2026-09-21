@@ -29,4 +29,4 @@ management:
         include: health,info
   endpoint:
     health:
-      show-details: never # não vazar detalhes de infra numa rota pública
+      show-details: never

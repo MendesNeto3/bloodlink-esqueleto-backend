@@ -4,29 +4,22 @@ import com.bloodlink.centro.adapter.in.web.dto.AtualizarNomeCentroRequest;
 import com.bloodlink.centro.adapter.in.web.dto.CentroResponse;
 import com.bloodlink.centro.adapter.in.web.dto.RegistrarCentroRequest;
 import com.bloodlink.centro.application.port.in.CentroUseCase;
-import com.bloodlink.centro.application.port.out.CentroRepositoryPort;
 import com.bloodlink.centro.config.ExigePapel;
-import com.bloodlink.centro.usuario.adapter.in.dto.UsuarioResponse;
-import com.bloodlink.centro.usuario.application.port.out.UsuarioRepositoryPort;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/usuarios")
+@RequestMapping("/api/centros")
 public class CentroController {
 
     private final CentroUseCase centroUseCase;
-    private final UsuarioRepositoryPort usuarioRepository;
 
-    public CentroController(CentroUseCase centroUseCase,
-                            UsuarioRepositoryPort usuarioRepository) {
+    public CentroController(CentroUseCase centroUseCase) {
         this.centroUseCase = centroUseCase;
-        this.usuarioRepository = usuarioRepository;
     }
 
     @PostMapping
@@ -50,15 +43,4 @@ public class CentroController {
         var centro = centroUseCase.atualizarNome(id, request.nome());
         return ResponseEntity.ok(CentroResponse.toResponse(centro));
     }
-
-    @GetMapping("/{centroId}/usuarios")
-    @ExigePapel({"ADMIN", "GESTOR"})
-    public ResponseEntity<List<UsuarioResponse>> listarUsuarios (@PathVariable UUID centroId) {
-        var usuarios = usuarioRepository.usariosPorCentro(centroId)
-                .stream()
-                .map(UsuarioResponse::de)
-                .toList();
-        return ResponseEntity.ok(usuarios);
-    }
-
 }

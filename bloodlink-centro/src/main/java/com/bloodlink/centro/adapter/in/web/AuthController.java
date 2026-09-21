@@ -23,7 +23,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
-        return autenticarUsuario.autenticar(request.email(), request.senha())
+        return autenticarUsuario
+                .autenticar(request.email(), request.senha())
                 .map(token -> ResponseEntity.ok(new LoginResponse(token)))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }

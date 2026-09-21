@@ -11,7 +11,7 @@ public record UsuarioResponse(
         Papel papel,
         UUID centroId
 ) {
-    public static UsuarioResponse de(Usuario usuario) {
+    public static UsuarioResponse to(Usuario usuario) {
         return new UsuarioResponse(usuario.id(), usuario.email(), usuario.papel(), usuario.centroId());
     }
 }

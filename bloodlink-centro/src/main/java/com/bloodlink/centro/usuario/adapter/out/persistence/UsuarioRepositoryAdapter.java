@@ -3,10 +3,13 @@ package com.bloodlink.centro.usuario.adapter.out.persistence;
 import com.bloodlink.centro.usuario.application.port.out.UsuarioRepositoryPort;
 import com.bloodlink.centro.usuario.domain.Usuario;
 import com.bloodlink.common.correlation.Papel;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Component
 public class UsuarioRepositoryAdapter implements UsuarioRepositoryPort {
 
     private final UsuarioJpaRepository usuarioJpaRepository;
@@ -36,6 +39,14 @@ public class UsuarioRepositoryAdapter implements UsuarioRepositoryPort {
     @Override
     public Optional<Usuario> buscarPorId(UUID id) {
         return usuarioJpaRepository.findById(id).map(this::toDomain);
+    }
+
+    @Override
+    public List<Usuario> usariosPorCentro(UUID centroId) {
+        return usuarioJpaRepository.findById(centroId)
+                .stream()
+                .map(this::toDomain)
+                .toList();
     }
 
     private Usuario toDomain(UsuarioJpaEntity entity) {

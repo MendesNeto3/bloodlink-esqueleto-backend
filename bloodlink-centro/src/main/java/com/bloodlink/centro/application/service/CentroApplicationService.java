@@ -82,9 +82,9 @@ public class CentroApplicationService implements CentroUseCase {
         Centro centroDesativado = centroRepositoryPort.buscarPorId(id)
                 .map(centro -> new Centro
                         (centro.id(),
-                                centro.nome(),
-                                centro.schema(),
-                                false))
+                         centro.nome(),
+                         centro.schema(),
+                         false))
                 .orElseThrow(CentroNaoEncontradoException::new);
 
         log.info("Centro desativado: id={}, nome={}", centroDesativado.id(), centroDesativado.nome());

@@ -1,15 +1,16 @@
 package com.bloodlink.centro.usuario.adapter.in;
 
+import com.bloodlink.centro.config.ExigePapel;
 import com.bloodlink.centro.usuario.adapter.in.dto.CadastrarUsuarioRequest;
 import com.bloodlink.centro.usuario.adapter.in.dto.UsuarioResponse;
 import com.bloodlink.centro.usuario.application.port.in.UsuarioUseCase;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -24,6 +25,16 @@ public class UsuarioController {
     @PostMapping
     public ResponseEntity<UsuarioResponse> cadastrar(@RequestBody @Valid CadastrarUsuarioRequest request) {
         var usuario = usuarioUseCase.cadastrar(request.email(), request.senha(), request.papel(), request.centroId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(UsuarioResponse.de(usuario));
+        return ResponseEntity.status(HttpStatus.CREATED).body(UsuarioResponse.to(usuario));
+    }
+
+    @GetMapping("/{centroId}/usuarios")
+    @ExigePapel({"ADMIN", "GESTOR"})
+    public ResponseEntity<List<UsuarioResponse>> listarUsuarios (@PathVariable UUID centroId) {
+        var usuarios = usuarioUseCase.listarPorCentro(centroId)
+                .stream()
+                .map(UsuarioResponse::to)
+                .toList();
+        return ResponseEntity.ok(usuarios);
     }
 }
