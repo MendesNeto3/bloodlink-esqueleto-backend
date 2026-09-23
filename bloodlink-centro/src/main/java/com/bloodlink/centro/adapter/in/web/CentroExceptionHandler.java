@@ -1,10 +1,12 @@
 package com.bloodlink.centro.adapter.in.web;
 
 import com.bloodlink.centro.application.service.CentroNaoEncontradoException;
+import com.bloodlink.centro.config.ErrorResponse;
 import com.bloodlink.centro.usuario.application.service.AutenticacaoIndisponivelException;
 import com.bloodlink.centro.usuario.application.service.CadastroIndisponivelException;
 import com.bloodlink.centro.usuario.application.service.EmailJaCadastradoException;
 import com.bloodlink.centro.usuario.application.service.UsuarioNaoEncontradoException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,27 +16,41 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class CentroExceptionHandler {
 
     @ExceptionHandler(CentroNaoEncontradoException.class)
-    public ResponseEntity<String> handleCentroNaoEncontradoException(CentroNaoEncontradoException ex){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleCentroNaoEncontrado(
+            CentroNaoEncontradoException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.NOT_FOUND, ex, request);
     }
 
     @ExceptionHandler(UsuarioNaoEncontradoException.class)
-    public ResponseEntity<String>  handleUsuarioNaoEncontradoException(UsuarioNaoEncontradoException ex){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleUsuarioNaoEncontrado(
+            UsuarioNaoEncontradoException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.NOT_FOUND, ex, request);
     }
 
     @ExceptionHandler(EmailJaCadastradoException.class)
-    public ResponseEntity<String> handleEmailJaCadastrado(EmailJaCadastradoException e) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    public ResponseEntity<ErrorResponse> handleEmailJaCadastrado(
+            EmailJaCadastradoException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.CONFLICT, ex, request);
     }
 
     @ExceptionHandler(CadastroIndisponivelException.class)
-    public ResponseEntity<String> handleCadastroIndisponivel(CadastroIndisponivelException e) {
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(e.getMessage());
+    public ResponseEntity<ErrorResponse> handleCadastroIndisponivel(
+            CadastroIndisponivelException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.SERVICE_UNAVAILABLE, ex, request);
     }
 
     @ExceptionHandler(AutenticacaoIndisponivelException.class)
-    public ResponseEntity<String> handleAutenticacaoIndisponivel(AutenticacaoIndisponivelException e) {
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(e.getMessage());
+    public ResponseEntity<ErrorResponse> handleAutenticacaoIndisponivel(
+            AutenticacaoIndisponivelException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.SERVICE_UNAVAILABLE, ex, request);
+    }
+
+    private ResponseEntity<ErrorResponse> buildError(HttpStatus status, Exception ex, HttpServletRequest request) {
+        ErrorResponse body = ErrorResponse.of(
+                status.value(),
+                status.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI());
+        return ResponseEntity.status(status).body(body);
     }
 }
