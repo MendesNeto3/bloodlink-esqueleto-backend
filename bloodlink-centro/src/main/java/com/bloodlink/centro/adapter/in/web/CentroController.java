@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -42,5 +43,14 @@ public class CentroController {
             @RequestBody @Valid AtualizarNomeCentroRequest request) {
         var centro = centroUseCase.atualizarNome(id, request.nome());
         return ResponseEntity.ok(CentroResponse.toResponse(centro));
+    }
+
+    @GetMapping
+    public List<CentroResponse> listar() {
+        return centroUseCase
+                .listar()
+                .stream()
+                .map(CentroResponse::toResponse)
+                .toList();
     }
 }

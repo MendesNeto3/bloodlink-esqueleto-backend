@@ -1,0 +1,8 @@
+com\bloodlink\common\correlation\Papel.class
+com\bloodlink\common\events\AgendamentoStatusAtualizadoEvent.class
+com\bloodlink\common\events\AgendamentoConfirmadoEvent.class
+com\bloodlink\common\correlation\UserRoleContext.class
+com\bloodlink\common\events\CentroRegistradoEvent.class
+com\bloodlink\common\messaging\RabbitConstants.class
+com\bloodlink\common\correlation\CorrelationContext.class
+com\bloodlink\common\events\LembreteDoacaoEvent.class

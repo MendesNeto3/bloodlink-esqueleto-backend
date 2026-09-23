@@ -1,6 +1,5 @@
 package com.bloodlink.centro.application.service;
 
-import com.bloodlink.centro.adapter.in.web.dto.CentroResponse;
 import com.bloodlink.centro.application.port.in.CentroUseCase;
 import com.bloodlink.centro.application.port.out.CentroRepositoryPort;
 import com.bloodlink.centro.application.port.out.SchemaProvisionerGateway;
@@ -49,12 +48,8 @@ public class CentroApplicationService implements CentroUseCase {
     }
 
     @Override
-    public List<CentroResponse> listar() {
-        return centroRepositoryPort
-                .listarTodos()
-                .stream()
-                .map(CentroResponse::toResponse)
-                .toList();
+    public List<Centro> listar() {
+        return centroRepositoryPort.listarTodos();
     }
 
     @Override

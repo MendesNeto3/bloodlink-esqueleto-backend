@@ -1,0 +1,10 @@
+com\bloodlink\tenant\UserRoleContextFilter.class
+com\bloodlink\tenant\TenantSchemaValidator.class
+com\bloodlink\tenant\TenantContext.class
+com\bloodlink\tenant\CorrelationIdFilter.class
+com\bloodlink\tenant\SchemaConnectionProvider.class
+com\bloodlink\tenant\SchemaProvisionerPort.class
+com\bloodlink\tenant\FlywaySchemaProvisionerAdapter.class
+com\bloodlink\tenant\TenantAutoConfiguration.class
+com\bloodlink\tenant\TenantIdentifierResolver.class
+com\bloodlink\tenant\TenantResolverFilter.class
