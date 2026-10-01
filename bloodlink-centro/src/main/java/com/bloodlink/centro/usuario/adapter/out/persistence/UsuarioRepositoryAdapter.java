@@ -42,11 +42,16 @@ public class UsuarioRepositoryAdapter implements UsuarioRepositoryPort {
     }
 
     @Override
-    public List<Usuario> usariosPorCentro(UUID centroId) {
-        return usuarioJpaRepository.findById(centroId)
+    public List<Usuario> listarPorCentro(UUID centroId) {
+        return usuarioJpaRepository.findByCentroId(centroId)
                 .stream()
                 .map(this::toDomain)
                 .toList();
+    }
+
+    @Override
+    public boolean existeUsuarioComPapel(Papel papel) {
+        return usuarioJpaRepository.existsByPapel(papel.name());
     }
 
     private Usuario toDomain(UsuarioJpaEntity entity) {

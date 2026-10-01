@@ -1,0 +1,1 @@
+ALTER TABLE usuario ALTER COLUMN centro_id DROP NOT NULL;

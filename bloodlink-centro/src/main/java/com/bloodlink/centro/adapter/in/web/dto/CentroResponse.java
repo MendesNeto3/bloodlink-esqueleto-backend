@@ -6,12 +6,14 @@ import java.util.UUID;
 
 public record CentroResponse(
         UUID id,
-        String nome
+        String nome,
+        boolean ativo
 ) {
     public static CentroResponse toResponse(Centro centro) {
         return new CentroResponse(
                 centro.id(),
-                centro.nome()
+                centro.nome(),
+                centro.ativo()
         );
     }
 }

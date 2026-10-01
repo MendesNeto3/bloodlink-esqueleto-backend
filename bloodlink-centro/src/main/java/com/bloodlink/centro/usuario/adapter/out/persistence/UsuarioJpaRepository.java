@@ -1,5 +1,6 @@
 package com.bloodlink.centro.usuario.adapter.out.persistence;
 
+import com.bloodlink.common.correlation.Papel;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -10,4 +11,7 @@ public interface UsuarioJpaRepository extends JpaRepository<UsuarioJpaEntity, UU
 
     Optional<UsuarioJpaEntity> findByEmail(String email);
 
-    List<UsuarioJpaEntity> findByCentroId(UUID centroId);}
+    List<UsuarioJpaEntity> findByCentroId(UUID centroId);
+
+    boolean existsByPapel(String papel);
+}

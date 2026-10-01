@@ -1,6 +1,8 @@
 com\bloodlink\centro\config\WebMvcConfig.class
 com\bloodlink\centro\adapter\in\web\AuthController.class
 com\bloodlink\centro\application\service\CentroNaoEncontradoException.class
+com\bloodlink\centro\config\PlataformaSeeder.class
+com\bloodlink\centro\usuario\application\service\OperacaoNaoPermitidaException.class
 com\bloodlink\centro\config\RabbitConfig.class
 com\bloodlink\centro\usuario\application\port\out\UsuarioRepositoryPort.class
 com\bloodlink\centro\application\service\CentroApplicationService.class
@@ -12,6 +14,8 @@ com\bloodlink\centro\config\CorrelationIdFilter.class
 com\bloodlink\centro\usuario\adapter\in\dto\UsuarioResponse.class
 com\bloodlink\centro\usuario\adapter\out\persistence\UsuarioJpaEntity.class
 com\bloodlink\centro\usuario\adapter\out\persistence\UsuarioJpaRepository.class
+com\bloodlink\centro\BloodlinkCentroApplication.class
+com\bloodlink\centro\usuario\adapter\in\web\UsuarioExceptionHandler.class
 com\bloodlink\centro\adapter\in\web\dto\LoginResponse.class
 com\bloodlink\centro\adapter\in\web\dto\AtualizarNomeCentroRequest.class
 com\bloodlink\centro\application\port\out\SchemaProvisionerGateway.class
@@ -26,6 +30,7 @@ com\bloodlink\centro\config\JwtConfig.class
 com\bloodlink\centro\usuario\application\service\AutenticacaoIndisponivelException.class
 com\bloodlink\centro\adapter\in\web\dto\CentroResponse.class
 com\bloodlink\centro\adapter\in\web\CentroExceptionHandler.class
+com\bloodlink\centro\config\ErrorResponse.class
 com\bloodlink\centro\usuario\adapter\in\dto\CadastrarUsuarioRequest.class
 com\bloodlink\centro\usuario\adapter\in\UsuarioController.class
 com\bloodlink\centro\usuario\application\service\EmailJaCadastradoException.class

@@ -1,10 +1,7 @@
 package com.bloodlink.centro.usuario.adapter.in.web;
 
 import com.bloodlink.centro.config.ErrorResponse;
-import com.bloodlink.centro.usuario.application.service.AutenticacaoIndisponivelException;
-import com.bloodlink.centro.usuario.application.service.CadastroIndisponivelException;
-import com.bloodlink.centro.usuario.application.service.EmailJaCadastradoException;
-import com.bloodlink.centro.usuario.application.service.UsuarioNaoEncontradoException;
+import com.bloodlink.centro.usuario.application.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +33,11 @@ public class UsuarioExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAutenticacaoIndisponivel(
             AutenticacaoIndisponivelException ex, HttpServletRequest request) {
         return buildError(HttpStatus.SERVICE_UNAVAILABLE, ex, request);
+    }
+
+    @ExceptionHandler(OperacaoNaoPermitidaException.class)
+    public ResponseEntity<ErrorResponse> handlerOperacaoNaoPermitida( HttpServletRequest request, OperacaoNaoPermitidaException ex) {
+        return buildError(HttpStatus.FORBIDDEN, ex, request);
     }
 
     private ResponseEntity<ErrorResponse> buildError(HttpStatus status, Exception ex, HttpServletRequest request) {

@@ -4,9 +4,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.messaging.handler.HandlerMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.method.HandlerMethod;
 
 import java.util.Set;
 
@@ -21,11 +21,16 @@ public class AutorizacaoInterceptor implements HandlerInterceptor  {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
 
+        log.info("AutorizacaoInterceptor.preHandle CHAMADO para {} | handler class = {}",
+                request.getRequestURI(), handler.getClass().getName());
+
         if (!(handler instanceof HandlerMethod handlerMethod)) {
+            log.warn("Handler NAO é HandlerMethod, liberando sem checagem: {}", handler.getClass().getName());
             return true;
         }
 
         ExigePapel anotacao = handlerMethod.getMethodAnnotation(ExigePapel.class);
+        log.info("Anotacao ExigePapel encontrada: {}", anotacao);
         if (anotacao == null) {
             return true;
         }
@@ -42,4 +47,4 @@ public class AutorizacaoInterceptor implements HandlerInterceptor  {
 
         return true;
     }
-}
+    }

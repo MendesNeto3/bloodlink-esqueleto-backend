@@ -28,13 +28,15 @@ public class CentroRepositoryAdapter implements CentroRepositoryPort {
 
     @Override
     public Optional<Centro> buscarPorId(UUID id) {
-        return centroJpaRepository.findById(id).map(this::toDomain);
+        return centroJpaRepository
+                .findById(id)
+                .map(this::toDomain);
     }
 
     @Override
     public Centro salvar(Centro centro) {
         CentroJpaEntity centroJpaEntity = new CentroJpaEntity();
-        centroJpaEntity.setId(UUID.randomUUID());
+        centroJpaEntity.setId(centro.id() != null ? centro.id() : UUID.randomUUID());
         centroJpaEntity.setNome(centro.nome());
         centroJpaEntity.setSchema(centro.schema());
         centroJpaEntity.setAtivo(centro.ativo());

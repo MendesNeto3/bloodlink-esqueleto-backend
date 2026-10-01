@@ -8,6 +8,7 @@ import com.bloodlink.centro.usuario.application.port.in.UsuarioUseCase;
 import com.bloodlink.centro.usuario.application.port.out.UsuarioRepositoryPort;
 import com.bloodlink.centro.usuario.domain.Usuario;
 import com.bloodlink.common.correlation.Papel;
+import com.bloodlink.common.correlation.UserRoleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -64,17 +65,21 @@ public class UsuarioApplicationService implements UsuarioUseCase, AutenticarUsua
             return Optional.empty();
         }
 
-        Centro centro;
-        try {
-            centro = centroRepositoryPort.buscarPorId(usuario.centroId())
-                    .orElseThrow(() -> new IllegalStateException("Centro não encontrado: " + usuario.centroId()));
-        } catch (Exception e) {
-            log.error(
-                    "Falha ao buscar centro do usuário durante autenticação", e);
-            throw new AutenticacaoIndisponivelException();
-        }
+        String schemaSemPrefixo;
 
-        String schemaSemPrefixo = centro.schema().replace("centro_", "");
+        if (usuario.centroId() == null) {
+            schemaSemPrefixo = "public";
+        } else {
+            Centro centro;
+            try {
+                centro = centroRepositoryPort.buscarPorId(usuario.centroId())
+                        .orElseThrow(() -> new IllegalStateException("Centro não encontrado: " + usuario.centroId()));
+            } catch (Exception e) {
+                log.error("Falha ao buscar centro do usuário durante autenticação", e);
+                throw new AutenticacaoIndisponivelException();
+            }
+            schemaSemPrefixo = centro.schema().replace("centro_", "");
+        }
 
         String tokenAcesso = support.gerarToken(
                 usuario.email(),
@@ -87,6 +92,7 @@ public class UsuarioApplicationService implements UsuarioUseCase, AutenticarUsua
 
     @Override
     public Usuario cadastrar(String email, String senha, Papel papel, UUID centroId) {
+        validarAutorizacaoParaCriar(papel,centroId);
         try {
             String senhaHash = passwordEncoder.encode(senha);
             Usuario novoUsuario = new Usuario(null, email, senhaHash, papel, centroId);
@@ -120,8 +126,26 @@ public class UsuarioApplicationService implements UsuarioUseCase, AutenticarUsua
     @Override
     public List<Usuario> listarPorCentro(UUID centroId) {
         return usuarioRepositoryPort
-                .usariosPorCentro(centroId)
+                .listarPorCentro(centroId)
                 .stream()
                 .toList();
+    }
+
+    private void validarAutorizacaoParaCriar(Papel novoPapel, UUID centroIdAlvo) {
+        String papelHeader = UserRoleContext.get();
+        Papel papelQmChama = papelHeader != null ? Papel.valueOf(papelHeader) : null;
+
+        if (novoPapel == Papel.PLATAFORMA) {
+            throw new OperacaoNaoPermitidaException("Usuario PLATAFORMA nao pode ser criado por esta rota.");
+        }
+
+        if (novoPapel == Papel.ADMIN && papelQmChama != Papel.PLATAFORMA) {
+            throw new OperacaoNaoPermitidaException("Apenas um usuario PLATAFORMA pode criar um ADMIN.");
+        }
+
+        boolean papelPermiteCriarStaff = papelQmChama == Papel.ADMIN || papelQmChama == Papel.PLATAFORMA;
+        if ((novoPapel == Papel.GESTOR || novoPapel == Papel.ENFERMEIRO) && !papelPermiteCriarStaff) {
+            throw new OperacaoNaoPermitidaException("Apenas ADMIN ou PLATAFORMA podem criar GESTOR/ENFERMEIRO.");
+        }
     }
 }
