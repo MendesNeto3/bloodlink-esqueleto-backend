@@ -1,0 +1,65 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: bloodlink-api
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bloodlink
+    username: bloodlink
+    password: dev_only
+
+  jpa:
+    hibernate:
+      ddl-auto: validate # schema controlado 100% pelo Flyway
+    open-in-view: false
+    properties:
+      hibernate:
+        multiTenancy: SCHEMA
+        # O provider e o resolver não são mais configurados aqui por FQCN —
+        # são injetados como instâncias Spring via HibernatePropertiesCustomizer
+        # no bloodlink-tenant-starter (TenantAutoConfiguration).
+
+  # A tabela centro não existe mais aqui — ela migrou para o bloodlink-centro.
+  # As migrations de "tenant" rodam sob demanda, via FlywaySchemaProvisionerAdapter,
+  # disparado pelo CentroRegistradoEventListener ao consumir o evento do RabbitMQ.
+  # Aqui embaixo é só pro schema PUBLIC deste serviço (ex: tenant_provisionamento) —
+  # NÃO aponta pra pasta db/migration/tenant, que é rodada programaticamente.
+  flyway:
+    enabled: true
+    locations: classpath:db/migration/public
+    schemas: public
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+logging:
+  level:
+    com.bloodlink: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never # não vazar detalhes de infra numa rota pública
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      centro:
+        sliding-window-size: 10
+        failure-rate-threshold: 50       # abre o circuito se 50% das últimas 10 chamadas falharem
+        wait-duration-in-open-state: 15s # espera 15s antes de tentar de novo
+        permitted-number-of-calls-in-half-open-state: 3
+      estoque:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 15s
+        permitted-number-of-calls-in-half-open-state: 3

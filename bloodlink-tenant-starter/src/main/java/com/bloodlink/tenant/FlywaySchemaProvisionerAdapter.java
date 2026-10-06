@@ -13,26 +13,28 @@ public class FlywaySchemaProvisionerAdapter implements SchemaProvisionerPort{
 
     private final DataSource dataSource;
     private final JdbcTemplate jdbcTemplate;
+    private final String migrationsLocation;
 
-    public FlywaySchemaProvisionerAdapter(DataSource dataSource, JdbcTemplate jdbcTemplate) {
+    public FlywaySchemaProvisionerAdapter(DataSource dataSource, JdbcTemplate jdbcTemplate, String migrationsLocation) {
         this.dataSource = dataSource;
         this.jdbcTemplate = jdbcTemplate;
+        this.migrationsLocation = migrationsLocation;
     }
 
     @Override
     public void provisionar(String schema) {
-        TenantSchemaValidator.validarFormato(schema);
+        TenantSchemaValidator.validarFormatoProvisionamento(schema); // antes: validarFormato(schema)
 
-        log.info("Schema provisioned: {}", schema);
-        jdbcTemplate.execute(String.format("CREATE SCHEMA IF NOT EXISTS %s",schema));
+        log.info("Provisionando schema: {}", schema);
+        jdbcTemplate.execute(String.format("CREATE SCHEMA IF NOT EXISTS %s", schema));
 
         Flyway.configure()
                 .dataSource(dataSource)
                 .schemas(schema)
-                .locations("classpath:/public/schemas")
+                .locations(migrationsLocation)
                 .load()
                 .migrate();
 
-        log.info("Schema provisioned: {}", schema);
+        log.info("Schema provisionado com sucesso: {}", schema);
     }
 }

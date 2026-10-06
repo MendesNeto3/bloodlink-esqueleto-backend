@@ -23,6 +23,7 @@ C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\j
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\config\JwtConfig.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\config\PlataformaSeeder.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\config\RabbitConfig.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\config\UserRoleContextFilter.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\config\WebMvcConfig.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\domain\Centro.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\usuario\adapter\in\dto\CadastrarUsuarioRequest.java

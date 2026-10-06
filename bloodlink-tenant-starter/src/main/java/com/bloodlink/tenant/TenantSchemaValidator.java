@@ -26,6 +26,14 @@ public final class TenantSchemaValidator {
         }
     }
 
+    public static String validarFormatoProvisionamento(String schema) {
+        if (schema == null || !SCHEMA_TENANT_VALIDO.matcher(schema).matches()) {
+            log.warn("Schema de provisionamento em formato inválido rejeitado: {}", schema);
+            throw new IllegalArgumentException("Schema de provisionamento inválido: " + schema);
+        }
+        return schema;
+    }
+
     private TenantSchemaValidator() {
     }
 }

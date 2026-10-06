@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.util.UUID;
+
 @Component
 public class RabbitCentroEventPublisherAdapter implements SchemaProvisionerGateway {
 
@@ -22,17 +24,13 @@ public class RabbitCentroEventPublisherAdapter implements SchemaProvisionerGatew
     }
 
     @Override
-    public void provisionarEmtodosOsServicos(String schema) {
+    public void provisionarEmtodosOsServicos(UUID centroId, String schema, boolean ativo) {
         Runnable publicar = () -> {
             try {
                 rabbitTemplate.convertAndSend(
-                        RabbitConstants.EXCHANGE_CENTRO_REGISTRADO, "", new CentroRegistradoEvent(schema));
+                        RabbitConstants.EXCHANGE_CENTRO_REGISTRADO, "",
+                        new CentroRegistradoEvent(schema, centroId, ativo));
             } catch (Exception e) {
-                // Se o broker estiver fora do ar bem na hora de publicar, o
-                // centro já foi salvo no banco (isso rodou antes) — só o
-                // aviso pros outros serviços é que falhou. Loga alto porque
-                // isso significa provisionamento pendente sem retry
-                // automático, precisa de intervenção manual.
                 log.error("Falha ao publicar CentroRegistradoEvent para schema {} — provisionamento pendente!", schema, e);
             }
         };
@@ -49,4 +47,3 @@ public class RabbitCentroEventPublisherAdapter implements SchemaProvisionerGatew
         }
     }
 }
-

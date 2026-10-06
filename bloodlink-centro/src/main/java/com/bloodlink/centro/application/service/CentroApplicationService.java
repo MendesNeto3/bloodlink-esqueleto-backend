@@ -39,10 +39,9 @@ public class CentroApplicationService implements CentroUseCase {
         Centro centroSalvo = centroRepositoryPort.salvar(centroNovo);
 
         log.info("Centro registrado: id={}, nome={}", centroSalvo.id(), centroSalvo.nome());
-
         log.debug("Centro {} provisionado no schema {}", centroSalvo.id(), schema);
 
-        schemaProvisionerGateway.provisionarEmtodosOsServicos(schema);
+        schemaProvisionerGateway.provisionarEmtodosOsServicos(centroSalvo.id(), schema, centroSalvo.ativo());
 
         return centroSalvo;
     }
