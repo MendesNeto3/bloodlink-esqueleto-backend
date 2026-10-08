@@ -1,10 +1,14 @@
 package com.bloodlink.api.shared.tenant.adapter.out.persistence;
 
 import com.bloodlink.api.shared.tenant.application.port.out.TenantProvisionamentoRepositoryPort;
+import com.bloodlink.api.shared.tenant.domain.PaginaProvisionamentos;
 import com.bloodlink.api.shared.tenant.domain.StatusProvisionamento;
 import com.bloodlink.api.shared.tenant.domain.TenantProvisionamento;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
-
+import org.springframework.data.domain.Pageable;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -21,10 +25,10 @@ public class TenantProvisionamentoRepositoryAdapter implements TenantProvisionam
 
     @Override
     public TenantProvisionamento salvar(TenantProvisionamento provisionamento) {
-        UUID id = provisionamento.id() != null ? provisionamento.id() : UUID.randomUUID();
+        UUID provisionamentoId = provisionamento.id() != null ? provisionamento.id() : UUID.randomUUID();
 
         TenantProvisionamentoJpaEntity entity = new TenantProvisionamentoJpaEntity(
-                id,
+                provisionamentoId,
                 provisionamento.centroId(),
                 provisionamento.schema(),
                 provisionamento.status(),
@@ -49,15 +53,32 @@ public class TenantProvisionamentoRepositoryAdapter implements TenantProvisionam
                 .toList();
     }
 
+    @Override
+    public PaginaProvisionamentos listar(StatusProvisionamento status, int pagina, int tamanho) {
+        Pageable pageable = PageRequest.of(pagina, tamanho, Sort.by(Sort.Direction.DESC, "atualizadoEm"));
+
+        Page<TenantProvisionamentoJpaEntity> resultado = (status == null)
+                ? jpaRepository.findAll(pageable)
+                : jpaRepository.findByStatus(status, pageable);
+
+        List<TenantProvisionamento> conteudo = resultado.getContent().stream()
+                .map(this::toDomain)
+                .toList();
+
+        return new PaginaProvisionamentos(
+                conteudo, resultado.getNumber(), resultado.getSize(),
+                resultado.getTotalElements(), resultado.getTotalPages());
+    }
+
     private TenantProvisionamento toDomain(TenantProvisionamentoJpaEntity entity) {
-        return new TenantProvisionamento(
-                entity.getId(),
+        return new TenantProvisionamento
+                (entity.getId(),
                 entity.getCentroId(),
                 entity.getSchema(),
                 entity.getStatus(),
                 entity.getIniciadoEm(),
                 entity.getAtualizadoEm(),
-                entity.getConcluidoEm()
-        );
+                entity.getConcluidoEm());
     }
 }
+

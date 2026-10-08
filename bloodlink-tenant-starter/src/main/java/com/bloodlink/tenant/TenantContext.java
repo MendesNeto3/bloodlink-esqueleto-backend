@@ -2,8 +2,7 @@ package com.bloodlink.tenant;
 
 public final class TenantContext {
 
-    public static final String SCHEMA_PUBLICO = "publico";
-
+    public static final String SCHEMA_PUBLICO = "public";
     private static final ThreadLocal<String> ATUAL =  new ThreadLocal<>();
 
     public static void set (String schema) {

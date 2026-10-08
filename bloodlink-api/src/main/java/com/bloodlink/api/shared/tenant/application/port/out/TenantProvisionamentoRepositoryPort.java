@@ -1,5 +1,6 @@
 package com.bloodlink.api.shared.tenant.application.port.out;
 
+import com.bloodlink.api.shared.tenant.domain.PaginaProvisionamentos;
 import com.bloodlink.api.shared.tenant.domain.StatusProvisionamento;
 import com.bloodlink.api.shared.tenant.domain.TenantProvisionamento;
 
@@ -11,4 +12,5 @@ public interface TenantProvisionamentoRepositoryPort {
     TenantProvisionamento salvar(TenantProvisionamento provisionamento);
     Optional<TenantProvisionamento> buscarPorSchema(String schema);
     List<TenantProvisionamento> listarPorStatusEIniciadoAntesDe(StatusProvisionamento status, Instant limite);
+    PaginaProvisionamentos listar(StatusProvisionamento status, int pagina, int tamanho);
 }

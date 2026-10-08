@@ -1,5 +1,6 @@
 package com.bloodlink.api.shared.tenant.adapter.in.web;
 
+import com.bloodlink.api.shared.tenant.domain.StatusProvisionamento;
 import com.bloodlink.api.shared.tenant.exception.ProvisionamentoNaoEncontradoException;
 import com.bloodlink.api.shared.tenant.exception.RetomadaProvisionamentoException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,8 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -41,6 +44,17 @@ public class TenantExceptionHandler {
                                                               HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(body(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), request));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> tipoArgumentoInvalido(
+            MethodArgumentTypeMismatchException e,HttpServletRequest request) {
+        String mensagem = "Valor inválido para o parâmetro '" + e.getName() + "': " + e.getValue();
+        if (StatusProvisionamento.class.equals(e.getRequiredType())) {
+            mensagem += ". Valores aceitos: " + Arrays.toString(StatusProvisionamento.values());
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(body(HttpStatus.BAD_REQUEST, mensagem, request));
     }
 
     private Map<String, Object> body(HttpStatus status, String message, HttpServletRequest request) {
