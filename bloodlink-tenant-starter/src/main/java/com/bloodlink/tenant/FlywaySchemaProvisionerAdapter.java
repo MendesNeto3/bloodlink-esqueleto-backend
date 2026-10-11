@@ -37,4 +37,21 @@ public class FlywaySchemaProvisionerAdapter implements SchemaProvisionerPort{
 
         log.info("Schema provisionado com sucesso: {}", schema);
     }
+
+    @Override
+    public int migrar(String schema) {
+        TenantSchemaValidator.validarFormatoProvisionamento(schema);
+        return executarMigrations(schema);
+    }
+
+    private int executarMigrations(String schema) {
+        return Flyway.configure()
+                .dataSource(dataSource)
+                .schemas(schema)
+                .locations(migrationsLocation)
+                .createSchemas(false)
+                .load()
+                .migrate()
+                .migrationsExecuted;
+    }
 }

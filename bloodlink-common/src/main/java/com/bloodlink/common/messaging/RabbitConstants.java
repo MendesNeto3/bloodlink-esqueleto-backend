@@ -16,6 +16,7 @@ public final class RabbitConstants {
     public static final String QUEUE_CENTRO_REGISTRADO_API = "api.centro-registrado";
     public static final String QUEUE_CENTRO_REGISTRADO_ESTOQUE = "estoque.centro-registrado";
     public static final String QUEUE_CENTRO_REGISTRADO_CHECKIN = "checkin.centro-registrado";
+    public static final String QUEUE_CENTRO_REGISTRADO_API_DLQ = QUEUE_CENTRO_REGISTRADO_API + ".dlq";
 
     private RabbitConstants() {}
 }

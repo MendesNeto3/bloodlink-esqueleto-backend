@@ -24,7 +24,8 @@ spring:
 
   # A tabela centro não existe mais aqui — ela migrou para o bloodlink-centro.
   # As migrations de "tenant" rodam sob demanda, via FlywaySchemaProvisionerAdapter,
-  # disparado pelo CentroRegistradoEventListener ao consumir o evento do RabbitMQ.
+  # disparado pelo CentroRegistradoEventListener ao consumir o evento do RabbitMQ,
+  # e nos tenants já existentes pela MigrarTenantsService (ver bloodlink.tenant abaixo).
   # Aqui embaixo é só pro schema PUBLIC deste serviço (ex: tenant_provisionamento) —
   # NÃO aponta pra pasta db/migration/tenant, que é rodada programaticamente.
   flyway:
@@ -37,6 +38,19 @@ spring:
     port: 5672
     username: guest
     password: guest
+    listener:                          # NOVO
+      simple:
+        default-requeue-rejected: false  # falha definitiva não volta para a fila (vai para a DLQ)
+        retry:
+          enabled: true
+          initial-interval: 2s
+          multiplier: 2.0
+          max-interval: 30s
+          max-attempts: 4
+
+bloodlink:                             # NOVO
+  tenant:
+    migrar-na-subida: true             # dev/homologação: true. Produção: decida (ver conversa sobre readiness)
 
 logging:
   level:

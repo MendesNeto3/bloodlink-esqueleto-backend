@@ -6,5 +6,4 @@ public interface ProvisionarTenantUseCase {
 
     void provisionar(UUID centroId, String schema, boolean ativo);
 
-
 }

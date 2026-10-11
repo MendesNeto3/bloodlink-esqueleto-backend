@@ -4,6 +4,7 @@ import com.bloodlink.api.shared.tenant.application.port.out.TenantProvisionament
 import com.bloodlink.api.shared.tenant.domain.PaginaProvisionamentos;
 import com.bloodlink.api.shared.tenant.domain.StatusProvisionamento;
 import com.bloodlink.api.shared.tenant.domain.TenantProvisionamento;
+import com.bloodlink.api.shared.tenant.exception.ProvisionamentoJaExisteException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -37,7 +38,14 @@ public class TenantProvisionamentoRepositoryAdapter implements TenantProvisionam
                 provisionamento.concluidoEm()
         );
 
-        return toDomain(jpaRepository.save(entity));
+        try {
+            return toDomain(jpaRepository.save(entity));
+        } catch (RuntimeException ex) {
+            if (violouUniqueDoSchema(ex)) {
+                throw new ProvisionamentoJaExisteException(provisionamento.schema(), ex);
+            }
+            throw ex;
+        }
     }
 
     @Override
@@ -79,6 +87,19 @@ public class TenantProvisionamentoRepositoryAdapter implements TenantProvisionam
                 entity.getIniciadoEm(),
                 entity.getAtualizadoEm(),
                 entity.getConcluidoEm());
+    }
+
+    private boolean violouUniqueDoSchema(Throwable erro) {
+        for (Throwable t = erro; t != null; t = t.getCause()) {
+            String mensagem = t.getMessage();
+            if (mensagem != null && mensagem.contains("tenant_provisionamento_schema_key")) {
+                return true;
+            }
+            if (t.getCause() == t) {
+                break;
+            }
+        }
+        return false;
     }
 }
 

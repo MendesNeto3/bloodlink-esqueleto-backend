@@ -1,9 +1,6 @@
 package com.bloodlink.api.shared.tenant.adapter.in.web;
 
-import com.bloodlink.api.shared.tenant.application.port.out.CancelarProvisionamentoUseCase;
-import com.bloodlink.api.shared.tenant.application.port.out.ConsultarProvisionamentoUseCase;
-import com.bloodlink.api.shared.tenant.application.port.out.ListarProvisionamentosUseCase;
-import com.bloodlink.api.shared.tenant.application.port.out.RetomarProvisionamentoUseCase;
+import com.bloodlink.api.shared.tenant.application.port.out.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,15 +12,18 @@ public class TenantProvisionamentoController {
     private final CancelarProvisionamentoUseCase cancelarProvisionamentoUseCase;
     private final ConsultarProvisionamentoUseCase consultarProvisionamentoUseCase;
     private final ListarProvisionamentosUseCase listarProvisionamentosUseCase;
+    private final MigrarTenantsUseCase migrarTenantsUseCase;
 
     public TenantProvisionamentoController(RetomarProvisionamentoUseCase retomarProvisionamentoUseCase,
                                            CancelarProvisionamentoUseCase cancelarProvisionamentoUseCase,
                                            ConsultarProvisionamentoUseCase consultarProvisionamentoUseCase,
-                                           ListarProvisionamentosUseCase listarProvisionamentosUseCase) {
+                                           ListarProvisionamentosUseCase listarProvisionamentosUseCase,
+                                           MigrarTenantsUseCase migrarTenantsUseCase) {
         this.retomarProvisionamentoUseCase = retomarProvisionamentoUseCase;
         this.cancelarProvisionamentoUseCase = cancelarProvisionamentoUseCase;
         this.consultarProvisionamentoUseCase = consultarProvisionamentoUseCase;
         this.listarProvisionamentosUseCase = listarProvisionamentosUseCase;
+        this.migrarTenantsUseCase = migrarTenantsUseCase;
     }
 
     @GetMapping("/{schema}")
@@ -50,5 +50,10 @@ public class TenantProvisionamentoController {
             @RequestParam(defaultValue = "20") int size ) {
                 return ResponseEntity.ok(PaginaProvisionamentosResponse.de(
                         listarProvisionamentosUseCase.listar(status, page, size)));
+    }
+
+    @PostMapping("/migrar")
+    public ResponseEntity<MigracaoTenantsResponse> migrar () {
+        return ResponseEntity.ok(MigracaoTenantsResponse.de(migrarTenantsUseCase.migrarTodos()));
     }
 }
