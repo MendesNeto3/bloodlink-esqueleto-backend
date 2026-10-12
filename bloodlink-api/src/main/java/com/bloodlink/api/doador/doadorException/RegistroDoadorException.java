@@ -1,0 +1,17 @@
+package com.bloodlink.api.doador.doadorException;
+
+import java.util.UUID;
+
+public class RegistroDoadorException extends RuntimeException {
+
+    private final UUID doadorId;
+
+    public RegistroDoadorException(UUID doadorId, Throwable causa) {
+        super("Falha ao registrar o doador", causa);
+        this.doadorId = doadorId;
+    }
+
+    public UUID getDoadorId() {
+        return doadorId;
+    }
+}
