@@ -5,4 +5,8 @@ C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-common\src\main\j
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-common\src\main\java\com\bloodlink\common\events\AgendamentoStatusAtualizadoEvent.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-common\src\main\java\com\bloodlink\common\events\CentroRegistradoEvent.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-common\src\main\java\com\bloodlink\common\events\LembreteDoacaoEvent.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-common\src\main\java\com\bloodlink\common\log\MascaraLog.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-common\src\main\java\com\bloodlink\common\messaging\RabbitConstants.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-common\src\main\java\com\bloodlink\common\seguranca\JwtAuthenticationFilter.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-common\src\main\java\com\bloodlink\common\seguranca\JwtSupport.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-common\src\main\java\com\bloodlink\common\seguranca\TenantIds.java

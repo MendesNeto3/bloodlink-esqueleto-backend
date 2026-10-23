@@ -2,18 +2,18 @@ package com.bloodlink.api.doador.application.service;
 
 import com.bloodlink.api.doador.application.port.in.AtualizarDoadorUseCase;
 import com.bloodlink.api.doador.application.port.in.DoadorRepositoryPort;
-import com.bloodlink.api.doador.application.port.out.AtualizarDoadorCommand;
+import com.bloodlink.api.doador.application.port.out.AtualizarDoadorCommand;   // onde o arquivo realmente está
 import com.bloodlink.api.doador.doadorException.AtualizacaoDoadorException;
 import com.bloodlink.api.doador.domain.Doador;
-import com.bloodlink.api.shared.Exception.RecursoNaoEncontradoException;
-import com.bloodlink.api.shared.Exception.RegraDeNegocioException;
+// RecursoNaoEncontradoException: copie o import do AlterarSituacaoDoadorService
+import com.bloodlink.auth.shared.exceptions.RecursoNaoEncontradoException;
+import com.bloodlink.common.log.MascaraLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Clock;
-import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -25,32 +25,38 @@ public class AtualizarDoadorService implements AtualizarDoadorUseCase {
     private final DoadorRepositoryPort repositoryPort;
     private final Clock clock;
 
-    public AtualizarDoadorService (DoadorRepositoryPort repositoryPort, Clock clock) {
+    public AtualizarDoadorService(DoadorRepositoryPort repositoryPort, Clock clock) {
         this.repositoryPort = repositoryPort;
         this.clock = clock;
     }
 
     @Override
     public Doador atualizar(UUID id, AtualizarDoadorCommand comando) {
+        if (id == null) {
+            throw new IllegalArgumentException("O id do doador é obrigatório");
+        }
         if (comando == null) {
             throw new IllegalArgumentException("Dados do doador não informados");
         }
-        Doador doadorAtual = repositoryPort.buscarPorId(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Doador", id));
-        if (!doadorAtual.ativo()) {
-            throw new RegraDeNegocioException("Doador inativo não pode ser atualizado; reative-o antes");
+
+        Doador doadorAtual = buscar(id);
+        if (doadorAtual == null) {
+            throw new RecursoNaoEncontradoException("Doador", id);
         }
 
-        String nome = ValidacoesDoador.Validarnome(comando.nome());
+        String nome = ValidacoesDoador.validarNome(comando.nome());
         BigDecimal peso = ValidacoesDoador.validarPeso(comando.pesoKg());
         String telefone = ValidacoesDoador.validarTelefone(comando.telefone());
         String email = ValidacoesDoador.validarEmail(comando.email());
-        boolean consentimento = Boolean.TRUE.equals(comando.consentimentoResponsavel());
-        ValidacoesDoador.idadeEConsentimento(doadorAtual.dataNascimento(), consentimento, LocalDate.now(clock));
+
+        boolean consentimento = comando.consentimentoResponsavel() != null
+                ? comando.consentimentoResponsavel()
+                : doadorAtual.consentimentoResponsavel();
+        ValidacoesDoador.exigirConsentimentoSeAdolescente(doadorAtual.dataNascimento(), consentimento);
 
         if (semAlteracoes(doadorAtual, nome, telefone, email, peso, consentimento)) {
             log.info("Doador {} sem alterações; nada foi gravado", id);
-            return doadorAtual; // não mexe em atualizadoEm nem escreve no banco
+            return doadorAtual;
         }
 
         Doador atualizado = doadorAtual.comDadosAtualizados(nome, telefone, email, peso, consentimento, clock.instant());
@@ -61,7 +67,18 @@ public class AtualizarDoadorService implements AtualizarDoadorUseCase {
             log.info("Doador {} atualizado", salvo.id());
             return salvo;
         } catch (RuntimeException e) {
-            log.error("Falha ao atualizar o doador {}", id, e);
+            log.error("Falha ao atualizar o doador {} - causa: {}", id, MascaraLog.causa(e));
+            log.debug("Detalhe da falha", e);
+            throw new AtualizacaoDoadorException(id, e);
+        }
+    }
+
+    private Doador buscar(UUID id) {
+        try {
+            return repositoryPort.buscarPorId(id).orElse(null);
+        } catch (RuntimeException e) {
+            log.error("Falha ao consultar o doador {} para atualização - causa: {}", id, MascaraLog.causa(e));
+            log.debug("Detalhe da falha", e);
             throw new AtualizacaoDoadorException(id, e);
         }
     }

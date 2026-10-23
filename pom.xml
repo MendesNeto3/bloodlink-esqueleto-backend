@@ -17,10 +17,12 @@
         <java.version>21</java.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+        <jjwt.version>0.12.6</jjwt.version>
     </properties>
     <modules>
         <module>bloodlink-common</module>
         <module>bloodlink-tenant-starter</module>
+        <!-- Serviço Auth (porta 8085) + biblioteca JwtSupport, em um módulo só -->
         <module>bloodlink-auth-support</module>
         <module>bloodlink-centro</module>
         <module>bloodlink-api</module>
@@ -32,10 +34,42 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Módulos internos: quem usa pode omitir o <version> -->
+            <dependency>
+                <groupId>com.bloodlink</groupId>
+                <artifactId>bloodlink-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bloodlink</groupId>
+                <artifactId>bloodlink-tenant-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bloodlink</groupId>
+                <artifactId>bloodlink-auth-support</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>me.paulschwarz</groupId>
                 <artifactId>spring-dotenv</artifactId>
                 <version>4.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>${jjwt.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

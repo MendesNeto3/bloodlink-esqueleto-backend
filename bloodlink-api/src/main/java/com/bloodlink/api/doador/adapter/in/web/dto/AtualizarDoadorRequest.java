@@ -11,7 +11,7 @@ public record AtualizarDoadorRequest(
         BigDecimal pesoKg,
         Boolean consentimentoResponsavel
 ) {
-    AtualizarDoadorCommand paraComando() {
+    public AtualizarDoadorCommand paraComando() {
         return new AtualizarDoadorCommand(nome, telefone, email, pesoKg, consentimentoResponsavel);
     }
 }

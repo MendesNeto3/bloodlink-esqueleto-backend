@@ -1,26 +1,51 @@
 server:
   port: 8084
+  tomcat:
+    accesslog:
+      enabled: false   # a URI pode conter e-mail, nome ou CPF
 
 spring:
   application:
     name: bloodlink-centro
   datasource:
-    url: jdbc:postgresql://localhost:5432/bloodlink
-    username: bloodlink
-    password: dev_only
+    url: ${BLOODLINK_DB_URL:jdbc:postgresql://localhost:5432/bloodlink}
+    username: ${BLOODLINK_DB_USER:bloodlink}
+    password: ${BLOODLINK_DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate
     open-in-view: false
+    show-sql: false
   flyway:
     enabled: true
     schemas: public
-    locations: classpath:db/migration
+    # pasta própria: não pode apontar para db/migration, senão o Flyway varre as
+    # subpastas e pega as migrations do Auth (db/migration/auth) que vêm no jar
+    locations: classpath:db/migration/centro
+    # histórico próprio: o schema public é compartilhado com a API, que já usa flyway_schema_history
+    table: flyway_schema_history_centro
+    # public já tem tabelas da API, então o Flyway exige baseline para criar o histórico novo;
+    # com baseline-version 0 a V1 do centro ainda é aplicada
+    baseline-on-migrate: true
+    baseline-version: 0
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    host: ${BLOODLINK_RABBIT_HOST:localhost}
+    port: ${BLOODLINK_RABBIT_PORT:5672}
+    username: ${BLOODLINK_RABBIT_USER:guest}
+    password: ${BLOODLINK_RABBIT_PASSWORD:guest}
+
+bloodlink:
+  jwt:
+    # o mesmo segredo do Auth e da API; sem valor padrão, a aplicação não sobe sem ele
+    segredo: ${BLOODLINK_JWT_SEGREDO}
+
+logging:
+  level:
+    root: INFO
+    com.bloodlink: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN
 
 management:
   endpoints:

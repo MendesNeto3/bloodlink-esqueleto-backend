@@ -1,17 +1,10 @@
 package com.bloodlink.api.doador.doadorException;
 
-import java.util.UUID;
+import com.bloodlink.api.shared.tenant.exception.FalhaInternaException;
 
-public class RegistroDoadorException extends RuntimeException {
+public class RegistroDoadorException extends FalhaInternaException {
 
-    private final UUID doadorId;
-
-    public RegistroDoadorException(UUID doadorId, Throwable causa) {
+    public RegistroDoadorException(Throwable causa) {
         super("Falha ao registrar o doador", causa);
-        this.doadorId = doadorId;
-    }
-
-    public UUID getDoadorId() {
-        return doadorId;
     }
 }

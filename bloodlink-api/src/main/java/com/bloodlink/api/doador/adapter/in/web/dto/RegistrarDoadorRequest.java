@@ -16,7 +16,7 @@ public record RegistrarDoadorRequest(
         String email,
         Boolean consentimentoResponsavel
 ) {
-    RegistrarDoadorCommand paraComando() {
+    public RegistrarDoadorCommand paraComando() {
         return new RegistrarDoadorCommand(nome, cpf, dataNascimento, sexo, tipoSanguineo,
                 pesoKg, telefone, email, consentimentoResponsavel);
     }

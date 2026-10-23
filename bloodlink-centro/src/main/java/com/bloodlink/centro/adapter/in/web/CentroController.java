@@ -4,9 +4,6 @@ import com.bloodlink.centro.adapter.in.web.dto.AtualizarNomeCentroRequest;
 import com.bloodlink.centro.adapter.in.web.dto.CentroResponse;
 import com.bloodlink.centro.adapter.in.web.dto.RegistrarCentroRequest;
 import com.bloodlink.centro.application.port.in.CentroUseCase;
-import com.bloodlink.centro.config.ExigePapel;
-import com.bloodlink.centro.usuario.adapter.in.dto.UsuarioResponse;
-import com.bloodlink.centro.usuario.application.port.in.UsuarioUseCase;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,16 +11,15 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/centros")
 public class CentroController {
 
     private final CentroUseCase centroUseCase;
-    private final UsuarioUseCase usuarioUseCase;
 
-    public CentroController(CentroUseCase centroUseCase, UsuarioUseCase usuarioUseCase) {
+    public CentroController(CentroUseCase centroUseCase) {
         this.centroUseCase = centroUseCase;
-        this.usuarioUseCase = usuarioUseCase;
     }
 
     @PostMapping
@@ -41,27 +37,16 @@ public class CentroController {
     }
 
     @PatchMapping("/{id}/desativar")
-    @ExigePapel({"ADMIN"})
     public ResponseEntity<CentroResponse> desativar(@PathVariable UUID id) {
         var centro = centroUseCase.desativar(id);
         return ResponseEntity.ok(CentroResponse.toResponse(centro));
     }
 
     @PatchMapping("/{id}")
-    @ExigePapel({"ADMIN", "GESTOR"})
     public ResponseEntity<CentroResponse> atualizarNome(
             @PathVariable UUID id,
             @RequestBody @Valid AtualizarNomeCentroRequest request) {
         var centro = centroUseCase.atualizarNome(id, request.nome());
         return ResponseEntity.ok(CentroResponse.toResponse(centro));
-    }
-
-    @GetMapping("/{id}/usuarios")
-    @ExigePapel({"PLATAFORMA", "ADMIN"})
-    public List<UsuarioResponse> listarUsuarios(@PathVariable UUID id) {
-        return usuarioUseCase.listarPorCentro(id)
-                .stream()
-                .map(UsuarioResponse::to)
-                .toList();
     }
 }

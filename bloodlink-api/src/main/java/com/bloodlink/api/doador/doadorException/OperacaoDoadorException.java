@@ -2,10 +2,14 @@ package com.bloodlink.api.doador.doadorException;
 
 import com.bloodlink.api.shared.tenant.exception.FalhaInternaException;
 
-import java.util.UUID;
-
 public class OperacaoDoadorException extends FalhaInternaException {
-    public OperacaoDoadorException(String operacao, UUID doadorId, Throwable causa) {
-        super("Falha ao " + operacao + " o doador", causa);
+
+    /** "operacao" é uma frase curta com o verbo, por exemplo "listar os doadores" ou "registrar a doação". */
+    public OperacaoDoadorException(String operacao) {
+        super("Não foi possível " + operacao + " no momento");
+    }
+
+    public OperacaoDoadorException(String operacao, Throwable causa) {
+        super("Não foi possível " + operacao + " no momento", causa);
     }
 }

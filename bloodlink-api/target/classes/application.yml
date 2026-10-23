@@ -5,6 +5,11 @@ spring:
   application:
     name: bloodlink-api
 
+  # A API só valida JWT. Sem isso o Spring Boot gera um usuário padrão com senha aleatória.
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+
   datasource:
     url: jdbc:postgresql://localhost:5432/bloodlink
     username: bloodlink
@@ -12,7 +17,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate # schema controlado 100% pelo Flyway
+      ddl-auto: none
     open-in-view: false
     properties:
       hibernate:
@@ -28,6 +33,7 @@ spring:
   # e nos tenants já existentes pela MigrarTenantsService (ver bloodlink.tenant abaixo).
   # Aqui embaixo é só pro schema PUBLIC deste serviço (ex: tenant_provisionamento) —
   # NÃO aponta pra pasta db/migration/tenant, que é rodada programaticamente.
+  # Também não pode apontar para db/migration: o jar do Auth traz V1 e V2 nessa pasta.
   flyway:
     enabled: true
     locations: classpath:db/migration/public
@@ -38,7 +44,7 @@ spring:
     port: 5672
     username: guest
     password: guest
-    listener:                          # NOVO
+    listener:
       simple:
         default-requeue-rejected: false  # falha definitiva não volta para a fila (vai para a DLQ)
         retry:
@@ -48,7 +54,11 @@ spring:
           max-interval: 30s
           max-attempts: 4
 
-bloodlink:                             # NOVO
+bloodlink:
+  jwt:
+    # Mesmo valor do Auth, mínimo 32 caracteres. Sem valor padrão de propósito:
+    # sem a variável a API não sobe, em vez de subir com um segredo fraco.
+    segredo: ${BLOODLINK_JWT_SEGREDO}
   tenant:
     migrar-na-subida: true             # dev/homologação: true. Produção: decida (ver conversa sobre readiness)
 

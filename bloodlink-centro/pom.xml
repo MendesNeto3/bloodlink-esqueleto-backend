@@ -13,6 +13,7 @@
          registro de tenants, então ele mesmo não é multi-tenant — só
          enxerga o schema public. -->
     <dependencies>
+        <!-- JwtSupport, TenantIds e JwtAuthenticationFilter vêm daqui -->
         <dependency>
             <groupId>com.bloodlink</groupId>
             <artifactId>bloodlink-common</artifactId>
@@ -24,16 +25,11 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.bloodlink</groupId>
-            <artifactId>bloodlink-auth-support</artifactId>
-            <version>0.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-crypto</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

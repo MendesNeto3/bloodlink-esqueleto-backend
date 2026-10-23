@@ -1,6 +1,7 @@
 package com.bloodlink.api.doador.adapter.out.persistence;
 
 import com.bloodlink.api.doador.domain.Doador;
+import com.bloodlink.api.doador.domain.OrigemCadastro;
 import com.bloodlink.api.doador.domain.SexoBiologico;
 import com.bloodlink.api.doador.domain.TipoSanguineo;
 import jakarta.persistence.*;
@@ -15,49 +16,66 @@ import java.util.UUID;
 public class DoadorJpaEntity {
 
     @Id
-    UUID id;
+    private UUID id;
 
     @Column(nullable = false, length = 120)
-    String nome;
+    private String nome;
 
     @Column(nullable = false, length = 11)
-    String cpf;
+    private String cpf;
 
     @Column(name = "data_nascimento", nullable = false)
-    LocalDate dataNascimento;
+    private LocalDate dataNascimento;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
-    SexoBiologico sexo;
+    private SexoBiologico sexo;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_sanguineo", nullable = false, length = 12)
-    TipoSanguineo tipoSanguineo;
+    private TipoSanguineo tipoSanguineo;
 
     @Column(name = "peso_kg", nullable = false, precision = 5, scale = 2)
-    BigDecimal pesoKg;
+    private BigDecimal pesoKg;
 
     @Column(length = 11)
-    String telefone;
+    private String telefone;
 
     @Column(length = 120)
-    String email;
+    private String email;
 
     @Column(name = "consentimento_responsavel", nullable = false)
-    boolean consentimentoResponsavel;
+    private boolean consentimentoResponsavel;
 
     @Column(nullable = false)
-    boolean ativo;
+    private boolean ativo;
 
-    @Column(name = "criado_em", nullable = false)
-    Instant criadoEm;
+    @Column(name = "criado_em", nullable = false, updatable = false)
+    private Instant criadoEm;
 
     @Column(name = "atualizado_em", nullable = false)
-    Instant atualizadoEm;
+    private Instant atualizadoEm;
 
-    protected DoadorJpaEntity() {}
+    @Column(length = 80)
+    private String cidade;
 
-    static DoadorJpaEntity de(Doador d) {
+    @Column(length = 2)
+    private String uf;
+
+    @Column(name = "ultima_doacao_declarada")
+    private LocalDate ultimaDoacaoDeclarada;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "origem_cadastro", nullable = false, length = 20)
+    private OrigemCadastro origemCadastro;
+
+    @Column(name = "consentimento_lgpd_em")
+    private Instant consentimentoLgpdEm;
+
+    protected DoadorJpaEntity() {
+    }
+
+    public static DoadorJpaEntity de(Doador d) {
         DoadorJpaEntity e = new DoadorJpaEntity();
         e.id = d.id();
         e.nome = d.nome();
@@ -72,12 +90,23 @@ public class DoadorJpaEntity {
         e.ativo = d.ativo();
         e.criadoEm = d.criadoEm();
         e.atualizadoEm = d.atualizadoEm();
+        e.cidade = d.cidade();
+        e.uf = d.uf();
+        e.ultimaDoacaoDeclarada = d.ultimaDoacaoDeclarada();
+        e.origemCadastro = d.origemCadastro();
+        e.consentimentoLgpdEm = d.consentimentoLgpdEm();
         return e;
     }
 
-    Doador paraDominio() {
+    public Doador paraDominio() {
         return new Doador(id, nome, cpf, dataNascimento, sexo, tipoSanguineo, pesoKg, telefone, email,
-                consentimentoResponsavel, ativo, criadoEm, atualizadoEm);
+                consentimentoResponsavel, ativo, criadoEm, atualizadoEm,
+                cidade, uf, ultimaDoacaoDeclarada, origemCadastro, consentimentoLgpdEm);
+    }
+
+    /** Dados pessoais nunca saem em log. */
+    @Override
+    public String toString() {
+        return "DoadorJpaEntity[id=" + id + "]";
     }
 }
-

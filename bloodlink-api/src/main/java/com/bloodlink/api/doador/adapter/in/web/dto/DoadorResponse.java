@@ -1,6 +1,7 @@
 package com.bloodlink.api.doador.adapter.in.web.dto;
 
 import com.bloodlink.api.doador.domain.Doador;
+import com.bloodlink.api.doador.domain.OrigemCadastro;
 import com.bloodlink.api.doador.domain.SexoBiologico;
 import com.bloodlink.api.doador.domain.TipoSanguineo;
 
@@ -22,13 +23,18 @@ public record DoadorResponse(
         boolean consentimentoResponsavel,
         boolean ativo,
         Instant criadoEm,
-        Instant atualizadoEm
+        Instant atualizadoEm,
+        String cidade,
+        String uf,
+        OrigemCadastro origemCadastro,
+        LocalDate ultimaDoacaoDeclarada
 ) {
     public static DoadorResponse de(Doador d) {
         return new DoadorResponse(
                 d.id(), d.nome(), mascarar(d.cpf()), d.dataNascimento(), d.sexo(),
                 d.tipoSanguineo(), d.pesoKg(), d.telefone(), d.email(),
-                d.consentimentoResponsavel(), d.ativo(), d.criadoEm(), d.atualizadoEm());
+                d.consentimentoResponsavel(), d.ativo(), d.criadoEm(), d.atualizadoEm(),
+                d.cidade(), d.uf(), d.origemCadastro(), d.ultimaDoacaoDeclarada());
     }
 
     private static String mascarar(String cpf) {

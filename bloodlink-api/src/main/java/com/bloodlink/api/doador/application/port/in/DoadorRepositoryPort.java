@@ -14,4 +14,6 @@ public interface DoadorRepositoryPort {
     Optional<Doador> buscarPorCpf(String cpf);
     boolean existePorCpf (String cpf);
     Pagina<Doador> listar(FiltroDoador filtro, int Pagina, int tamanho);
+    Optional<Doador> buscarPorEmail(String email);
+    Optional<Doador> buscarPorNome(String nome);
 }

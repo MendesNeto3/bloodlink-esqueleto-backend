@@ -1,0 +1,62 @@
+server:
+  port: 8085
+  tomcat:
+    accesslog:
+      enabled: false   # a URI pode conter e-mail, nome ou CPF
+
+spring:
+  application:
+    name: bloodlink-auth
+  datasource:
+    url: ${BLOODLINK_DB_URL:jdbc:postgresql://localhost:5432/bloodlink}
+    username: ${BLOODLINK_DB_USER:bloodlink}
+    password: ${BLOODLINK_DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: auth
+  flyway:
+    schemas: auth
+    default-schema: auth
+    create-schemas: true
+    locations: classpath:db/migration/auth
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+
+bloodlink:
+  jwt:
+    segredo: ${BLOODLINK_JWT_SEGREDO}     # o MESMO valor da bloodlink-api e da bloodlink-centro
+    validade-access: 15m
+    validade-refresh: 7d
+  servico:
+    chave: ${BLOODLINK_SERVICO_CHAVE:}    # chave das rotas /internal/**; vazia = rotas fechadas
+  front:
+    url: ${BLOODLINK_FRONT_URL:http://localhost:3000}   # base do link de ativação enviado ao doador
+  auth:
+    admin-inicial:                          # usado só se ainda não existir ADMIN_PLATAFORMA
+      email: ${BLOODLINK_ADMIN_EMAIL:}
+      senha: ${BLOODLINK_ADMIN_SENHA:}
+      nome: Administrador da Plataforma
+    ativacao:
+      validade: 48h                         # tempo de vida do link de ativação da conta do doador
+
+logging:
+  level:
+    root: INFO
+    com.bloodlink: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never

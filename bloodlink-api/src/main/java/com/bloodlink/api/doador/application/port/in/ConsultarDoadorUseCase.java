@@ -8,4 +8,8 @@ public interface ConsultarDoadorUseCase {
     Doador porId(UUID id);
 
     Doador porCpf(String cpf);
+
+    Doador porNome(String nome);
+
+    Doador porEmail(String email);
 }

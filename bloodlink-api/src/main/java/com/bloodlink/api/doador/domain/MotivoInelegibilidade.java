@@ -1,0 +1,12 @@
+package com.bloodlink.api.doador.domain;
+
+public enum MotivoInelegibilidade {
+    IDADE_FORA_DA_FAIXA,
+    PRIMEIRA_DOACAO_APOS_60_ANOS,
+    PESO_INSUFICIENTE,
+    PESO_NAO_INFORMADO,
+    IMPEDIMENTO_DEFINITIVO,
+    IMPEDIMENTO_TEMPORARIO,
+    INTERVALO_MINIMO,
+    LIMITE_ANUAL
+}
