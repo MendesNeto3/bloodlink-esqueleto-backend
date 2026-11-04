@@ -59,8 +59,18 @@ bloodlink:
     # Mesmo valor do Auth, mínimo 32 caracteres. Sem valor padrão de propósito:
     # sem a variável a API não sobe, em vez de subir com um segredo fraco.
     segredo: ${BLOODLINK_JWT_SEGREDO}
+  auth:
+    url: ${BLOODLINK_AUTH_URL:http://localhost:8085}   # onde a API chama o Auth para criar a conta do convite
+  servico:
+    chave: ${BLOODLINK_SERVICO_CHAVE:}                 # o MESMO valor do Auth; vazia = o convite falha
   tenant:
     migrar-na-subida: true             # dev/homologação: true. Produção: decida (ver conversa sobre readiness)
+  agendamento:
+    horarios: "08:00,09:00,10:00,11:00,13:00,14:00,15:00,16:00"
+    vagas-por-horario: 3
+    antecedencia-minima-dias: 1
+    janela-maxima-dias: 60
+    dias-atendimento: "SEG,TER,QUA,QUI,SEX"
 
 logging:
   level:

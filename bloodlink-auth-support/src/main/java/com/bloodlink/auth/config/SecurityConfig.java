@@ -52,8 +52,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/error", "/actuator/health", "/actuator/info").permitAll()
 
-                        // login, renovação e saída: públicos
-                        .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/refresh", "/auth/logout").permitAll()
+                        // login, renovação, saída e ativação da conta: públicos
+                        .requestMatchers(HttpMethod.POST,
+                                "/auth/login", "/auth/refresh", "/auth/logout", "/auth/ativar").permitAll()
+
+                        // rotas entre serviços: a chave X-Servico-Chave é conferida no controller.
+                        // O gateway precisa bloquear /internal/** para fora.
+                        .requestMatchers(HttpMethod.POST, "/internal/contas-doador").permitAll()
 
                         // trocar a própria senha: qualquer usuário autenticado
                         .requestMatchers(HttpMethod.PUT, "/api/usuarios/me/senha").authenticated()

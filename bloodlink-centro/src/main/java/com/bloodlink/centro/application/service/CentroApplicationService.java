@@ -5,10 +5,13 @@ import com.bloodlink.centro.application.port.out.CentroRepositoryPort;
 import com.bloodlink.centro.application.port.out.SchemaProvisionerGateway;
 import com.bloodlink.centro.domain.Centro;
 
+import com.bloodlink.centro.domain.CentroComDistancia;
+import com.bloodlink.centro.domain.PerfilCentro;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,18 +55,40 @@ public class CentroApplicationService implements CentroUseCase {
     }
 
     @Override
-    public Centro atualizarNome(UUID id, String nome) {
-        String nomeValidado = validarNome(nome).trim();
+    public List<Centro> listarAtivos() {
+        return centroRepositoryPort.listarTodos().stream()
+                .filter(Centro::ativo)
+                .toList();
+    }
 
-        Centro centroAtual = centroRepositoryPort.buscarPorId(id)
-                .orElseThrow(CentroNaoEncontradoException::new);
+    @Override
+    public List<CentroComDistancia> listarPublicos(Double lat, Double lng) {
+        if ((lat == null) != (lng == null)) {
+            throw new IllegalArgumentException("Informe lat e lng juntos");
+        }
+        if (lat != null && (lat < -90 || lat > 90 || lng < -180 || lng > 180)) {
+            throw new IllegalArgumentException("Coordenadas fora do intervalo válido");
+        }
 
-        Centro centroAtualizado = new Centro(
-                centroAtual.id(),
-                nomeValidado,
-                centroAtual.schema(),
-                centroAtual.ativo()
-        );
+        Comparator<CentroComDistancia> porNome =
+                Comparator.comparing(c -> c.centro().nome(), String.CASE_INSENSITIVE_ORDER);
+        Comparator<CentroComDistancia> ordem = lat == null
+                ? porNome
+                : Comparator.comparing(CentroComDistancia::distanciaKm,
+                Comparator.nullsLast(Comparator.<Double>naturalOrder())).thenComparing(porNome);
+
+        return listarAtivos().stream()
+                .map(centro -> new CentroComDistancia(centro, distancia(centro, lat, lng)))
+                .sorted(ordem)
+                .toList();
+    }
+
+    @Override
+    public Centro atualizarNome(UUID id, String nome, String centroIdSolicitante) {
+        String nomeValidado = validarNome(nome);
+
+        Centro centroAtual = buscarDoSolicitante(id, centroIdSolicitante);
+        Centro centroAtualizado = centroAtual.comNome(nomeValidado);
 
         log.info("Nome do centro atualizado: id={}, nomeAntigo={}, nomeNovo={}",
                 centroAtual.id(), centroAtual.nome(), centroAtualizado.nome());
@@ -72,18 +97,46 @@ public class CentroApplicationService implements CentroUseCase {
     }
 
     @Override
+    public Centro atualizarPerfil(UUID id, PerfilCentro perfil, String centroIdSolicitante) {
+        if (perfil == null) {
+            throw new IllegalArgumentException("O perfil do centro é obrigatório");
+        }
+        Centro centroAtual = buscarDoSolicitante(id, centroIdSolicitante);
+
+        log.info("Perfil do centro atualizado: id={}", centroAtual.id());
+
+        return centroRepositoryPort.salvar(centroAtual.comPerfil(perfil));
+    }
+
+    @Override
     public Centro desativar(UUID id) {
-        Centro centroDesativado = centroRepositoryPort.buscarPorId(id)
-                .map(centro -> new Centro
-                        (centro.id(),
-                         centro.nome(),
-                         centro.schema(),
-                         false))
+        Centro centroAtual = centroRepositoryPort.buscarPorId(id)
                 .orElseThrow(CentroNaoEncontradoException::new);
+
+        Centro centroDesativado = centroRepositoryPort.salvar(centroAtual.desativado());
 
         log.info("Centro desativado: id={}, nome={}", centroDesativado.id(), centroDesativado.nome());
 
         return centroDesativado;
+    }
+
+    /** Quem não é da plataforma só enxerga o próprio centro; os outros respondem como "não encontrado". */
+    private Centro buscarDoSolicitante(UUID id, String centroIdSolicitante) {
+        Centro centro = centroRepositoryPort.buscarPorId(id)
+                .orElseThrow(CentroNaoEncontradoException::new);
+        if (centroIdSolicitante != null && !centro.centroId().equals(centroIdSolicitante.trim())) {
+            log.warn("Tentativa de alterar um centro que não é do solicitante: centro={}", id);
+            throw new CentroNaoEncontradoException();
+        }
+        return centro;
+    }
+
+    private static Double distancia(Centro centro, Double lat, Double lng) {
+        PerfilCentro perfil = centro.perfil();
+        if (lat == null || perfil.latitude() == null) {
+            return null;
+        }
+        return DistanciaGeografica.km(lat, lng, perfil.latitude().doubleValue(), perfil.longitude().doubleValue());
     }
 
     private String validarNome(String nome) {
@@ -96,4 +149,3 @@ public class CentroApplicationService implements CentroUseCase {
         return nome.trim();
     }
 }
-

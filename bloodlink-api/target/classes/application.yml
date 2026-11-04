@@ -59,6 +59,10 @@ bloodlink:
     # Mesmo valor do Auth, mínimo 32 caracteres. Sem valor padrão de propósito:
     # sem a variável a API não sobe, em vez de subir com um segredo fraco.
     segredo: ${BLOODLINK_JWT_SEGREDO}
+  auth:
+    url: ${BLOODLINK_AUTH_URL:http://localhost:8085}   # onde a API chama o Auth para criar a conta do convite
+  servico:
+    chave: ${BLOODLINK_SERVICO_CHAVE:}                 # o MESMO valor do Auth; vazia = o convite falha
   tenant:
     migrar-na-subida: true             # dev/homologação: true. Produção: decida (ver conversa sobre readiness)
 
@@ -73,18 +77,3 @@ management:
         include: health,info
   endpoint:
     health:
-      show-details: never # não vazar detalhes de infra numa rota pública
-
-resilience4j:
-  circuitbreaker:
-    instances:
-      centro:
-        sliding-window-size: 10
-        failure-rate-threshold: 50       # abre o circuito se 50% das últimas 10 chamadas falharem
-        wait-duration-in-open-state: 15s # espera 15s antes de tentar de novo
-        permitted-number-of-calls-in-half-open-state: 3
-      estoque:
-        sliding-window-size: 10
-        failure-rate-threshold: 50
-        wait-duration-in-open-state: 15s
-        permitted-number-of-calls-in-half-open-state: 3

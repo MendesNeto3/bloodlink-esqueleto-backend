@@ -7,6 +7,7 @@ import com.bloodlink.api.doador.adapter.in.web.dto.FichaPreDoacaoResponse;
 import com.bloodlink.api.doador.application.port.in.*;
 import com.bloodlink.api.doador.application.port.out.DoacaoResponse;
 import com.bloodlink.api.doador.application.port.out.ElegibilidadeResponse;
+import com.bloodlink.api.doador.application.port.out.ResumoDoadorResponse;
 import com.bloodlink.common.seguranca.JwtAuthenticationFilter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,17 +24,20 @@ public class DoadorMeController {
     private final DoacaoUseCase doacaoUseCase;
     private final FichaPreDoacaoUseCase fichaUseCase;
     private final AtualizarPerfilDoadorUseCase perfilUseCase;
+    private final ObterResumoDoadorUseCase obterResumoDoadorUseCase;
 
     public DoadorMeController(ConsultarDoadorUseCase consultarUseCase,
                               ConsultarElegibilidadeUseCase elegibilidadeUseCase,
                               DoacaoUseCase doacaoUseCase,
                               FichaPreDoacaoUseCase fichaUseCase,
-                              AtualizarPerfilDoadorUseCase perfilUseCase) {
+                              AtualizarPerfilDoadorUseCase perfilUseCase,
+                              ObterResumoDoadorUseCase  obterResumoDoadorUseCase) {
         this.consultarUseCase = consultarUseCase;
         this.elegibilidadeUseCase = elegibilidadeUseCase;
         this.doacaoUseCase = doacaoUseCase;
         this.fichaUseCase = fichaUseCase;
         this.perfilUseCase = perfilUseCase;
+        this.obterResumoDoadorUseCase = obterResumoDoadorUseCase;
     }
 
     @GetMapping
@@ -78,5 +82,12 @@ public class DoadorMeController {
             throw new IllegalArgumentException("O corpo da requisição é obrigatório");
         }
         return ResponseEntity.ok(FichaPreDoacaoResponse.de(fichaUseCase.salvar(request.paraComando(doadorId))));
+    }
+
+    @GetMapping("/resumo")
+    public ResponseEntity<ResumoDoadorResponse> meuResumo(
+            @RequestHeader(JwtAuthenticationFilter.HEADER_DOADOR) UUID doadorId,
+            @RequestHeader(JwtAuthenticationFilter.HEADER_TENANT) String centroId) {
+        return ResponseEntity.ok(ResumoDoadorResponse.de(obterResumoDoadorUseCase.obter(doadorId), centroId));
     }
 }

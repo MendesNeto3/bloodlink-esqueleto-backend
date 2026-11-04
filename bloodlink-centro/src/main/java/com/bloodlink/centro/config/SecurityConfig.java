@@ -46,8 +46,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/error", "/actuator/health", "/actuator/info").permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/api/centros/publicos").permitAll()
+
                         .requestMatchers(HttpMethod.PATCH, "/api/centros/*/desativar")
                         .hasRole("ADMIN_PLATAFORMA")
+
+                        // perfil: plataforma, ou o ADMIN_CENTRO do próprio centro (conferido no service)
+                        .requestMatchers(HttpMethod.PATCH, "/api/centros/*/perfil")
+                        .hasAnyRole("ADMIN_PLATAFORMA", "ADMIN_CENTRO")
 
                         .requestMatchers(HttpMethod.PATCH, "/api/centros/*")
                         .hasAnyRole("ADMIN_PLATAFORMA", "ADMIN_CENTRO")
@@ -59,7 +65,6 @@ public class SecurityConfig {
                         .anyRequest().denyAll());
         return http.build();
     }
-
     private static void escrever(ObjectMapper mapper, HttpServletResponse res, HttpStatus status,
                                  String mensagem, String uri) throws IOException {
         res.setStatus(status.value());

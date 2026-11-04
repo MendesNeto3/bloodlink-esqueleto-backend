@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.regex.Pattern;
+
 public class TenantResolverFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(TenantResolverFilter.class);
@@ -51,7 +52,7 @@ public class TenantResolverFilter extends OncePerRequestFilter {
         response.setContentType("application/json");
         response.getWriter().write("{\"timestamp\":\"" + Instant.now() + "\",\"status\":400,"
                 + "\"error\":\"Cabeçalho " + HEADER_TENANT + " ausente ou inválido\","
-                + "\"body\":\"" + escapar(request.getRequestURI()) + "\"}");
+                + "\"path\":\"" + escapar(request.getRequestURI()) + "\"}");
     }
 
     private static String escapar(String texto) {

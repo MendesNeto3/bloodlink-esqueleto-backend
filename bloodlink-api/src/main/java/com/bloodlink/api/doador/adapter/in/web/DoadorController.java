@@ -4,11 +4,13 @@ import com.bloodlink.api.doador.adapter.in.web.dto.AtualizarDoadorRequest;
 import com.bloodlink.api.doador.adapter.in.web.dto.DoadorResponse;
 import com.bloodlink.api.doador.adapter.in.web.dto.RegistrarDoadorRequest;
 import com.bloodlink.api.doador.application.port.in.*;
+import com.bloodlink.api.doador.application.port.in.EnviarConviteUseCase;
 import com.bloodlink.api.doador.application.port.out.*;
 import com.bloodlink.api.doador.domain.Doador;
 import com.bloodlink.api.doador.domain.TipoSanguineo;
 import com.bloodlink.api.shared.Pagina.Pagina;
 import com.bloodlink.auth.shared.exceptions.RegraDeNegocioException;
+import com.bloodlink.common.seguranca.JwtAuthenticationFilter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.StringUtils;
@@ -31,6 +33,7 @@ public class DoadorController {
     private final DoacaoUseCase doacaoUseCase;
     private final ImpedimentoUseCase impedimentoUseCase;
     private final ConfirmarTipoSanguineoUseCase tipoSanguineoUseCase;
+    private final EnviarConviteUseCase enviarConviteUseCase;
 
     public DoadorController(RegistrarDoadorUseCase registrarUseCase,
                             ConsultarDoadorUseCase consultarUseCase,
@@ -40,7 +43,8 @@ public class DoadorController {
                             ConsultarElegibilidadeUseCase elegibilidadeUseCase,
                             DoacaoUseCase doacaoUseCase,
                             ImpedimentoUseCase impedimentoUseCase,
-                            ConfirmarTipoSanguineoUseCase tipoSanguineoUseCase) {
+                            ConfirmarTipoSanguineoUseCase tipoSanguineoUseCase,
+                            EnviarConviteUseCase enviarConviteUseCase) {
         this.registrarUseCase = registrarUseCase;
         this.consultarUseCase = consultarUseCase;
         this.listarUseCase = listarUseCase;
@@ -50,6 +54,7 @@ public class DoadorController {
         this.doacaoUseCase = doacaoUseCase;
         this.impedimentoUseCase = impedimentoUseCase;
         this.tipoSanguineoUseCase = tipoSanguineoUseCase;
+        this.enviarConviteUseCase = enviarConviteUseCase;
     }
 
     @PostMapping
@@ -158,6 +163,13 @@ public class DoadorController {
     public ResponseEntity<DoadorResponse> confirmarTipoSanguineo(@PathVariable UUID id,
                                                                  @RequestBody ConfirmarTipoSanguineoRequest request) {
         return ResponseEntity.ok(DoadorResponse.de(tipoSanguineoUseCase.confirmar(id, request.paraTipo())));
+    }
+
+    @PostMapping("/{id}/convite")
+    public ResponseEntity<Void> enviarConvite(@PathVariable UUID id,
+                                              @RequestHeader(JwtAuthenticationFilter.HEADER_TENANT) String centroId) {
+        enviarConviteUseCase.enviar(id, centroId);
+        return ResponseEntity.accepted().build();
     }
 
     /** O nome da autenticação é o subject do token, que é o id do usuário. */
