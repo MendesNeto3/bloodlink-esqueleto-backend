@@ -48,8 +48,10 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/tenants/provisionamentos/**").hasRole("ADMIN_PLATAFORMA")
 
-                        // área do próprio doador (o id vem do token): doador e agendamentos dele
+                        // área do próprio doador (o id vem do token): doador e agendamentos dele.
+                        // Tem que vir ANTES das regras da equipe: /api/agendamentos/me também casa com /api/agendamentos/*
                         .requestMatchers("/api/doadores/me", "/api/doadores/me/**").hasRole("DOADOR")
+                        .requestMatchers("/api/agendamentos/me", "/api/agendamentos/me/**").hasRole("DOADOR")
 
                         // ---- agendamentos (equipe) ----
                         .requestMatchers(HttpMethod.POST, "/api/agendamentos")

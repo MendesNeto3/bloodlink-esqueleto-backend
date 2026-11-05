@@ -1,5 +1,6 @@
 package com.bloodlink.api.doador.application.service;
 
+import com.bloodlink.api.agendamento.application.usecase.AgendamentoUseCase;
 import com.bloodlink.api.doador.application.port.in.ConsultarDoadorUseCase;
 import com.bloodlink.api.doador.application.port.in.ConsultarElegibilidadeUseCase;
 import com.bloodlink.api.doador.application.port.in.DoacaoUseCase;
@@ -19,21 +20,24 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class ObterResumoDoadorService implements ObterResumoDoadorUseCase {
 
-    private final ConsultarDoadorUseCase  consultarDoadorUseCase;
+    private final ConsultarDoadorUseCase consultarDoadorUseCase;
     private final DoacaoUseCase doacaoUseCase;
     private final ConsultarElegibilidadeUseCase elegibilidadeUseCase;
+    private final AgendamentoUseCase agendamentoUseCase;
 
-    public ObterResumoDoadorService (ConsultarDoadorUseCase consultarDoadorUseCase,
-                                     DoacaoUseCase doacaoUseCase,
-                                     ConsultarElegibilidadeUseCase elegibilidadeUseCase) {
+    public ObterResumoDoadorService(ConsultarDoadorUseCase consultarDoadorUseCase,
+                                    DoacaoUseCase doacaoUseCase,
+                                    ConsultarElegibilidadeUseCase elegibilidadeUseCase,
+                                    AgendamentoUseCase agendamentoUseCase) {
         this.consultarDoadorUseCase = consultarDoadorUseCase;
         this.doacaoUseCase = doacaoUseCase;
         this.elegibilidadeUseCase = elegibilidadeUseCase;
+        this.agendamentoUseCase = agendamentoUseCase;
     }
 
     @Override
     public ResumoDoador obter(UUID doadorId) {
-        if (doadorId == null){
+        if (doadorId == null) {
             throw new IllegalArgumentException("O id do doador é obrigatório");
         }
 
@@ -47,7 +51,9 @@ public class ObterResumoDoadorService implements ObterResumoDoadorUseCase {
 
         LocalDate ultima = maisRecente(ultimaRegistrada, doador.ultimaDoacaoDeclarada());
 
-        return new ResumoDoador(doador, historico.size(), ultima, elegibilidadeUseCase.consultar(doadorId));
+        return new ResumoDoador(doador, historico.size(), ultima,
+                elegibilidadeUseCase.consultar(doadorId),
+                agendamentoUseCase.ativoDoDoador(doadorId).orElse(null));
     }
 
     private static LocalDate maisRecente(LocalDate a, LocalDate b) {

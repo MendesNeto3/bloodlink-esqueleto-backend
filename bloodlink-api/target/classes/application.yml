@@ -65,6 +65,12 @@ bloodlink:
     chave: ${BLOODLINK_SERVICO_CHAVE:}                 # o MESMO valor do Auth; vazia = o convite falha
   tenant:
     migrar-na-subida: true             # dev/homologação: true. Produção: decida (ver conversa sobre readiness)
+  agendamento:
+    horarios: "08:00,09:00,10:00,11:00,13:00,14:00,15:00,16:00"
+    vagas-por-horario: 3
+    antecedencia-minima-dias: 1
+    janela-maxima-dias: 60
+    dias-atendimento: "SEG,TER,QUA,QUI,SEX"
 
 logging:
   level:
@@ -77,3 +83,18 @@ management:
         include: health,info
   endpoint:
     health:
+      show-details: never # não vazar detalhes de infra numa rota pública
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      centro:
+        sliding-window-size: 10
+        failure-rate-threshold: 50       # abre o circuito se 50% das últimas 10 chamadas falharem
+        wait-duration-in-open-state: 15s # espera 15s antes de tentar de novo
+        permitted-number-of-calls-in-half-open-state: 3
+      estoque:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 15s
+        permitted-number-of-calls-in-half-open-state: 3

@@ -23,7 +23,10 @@ public class UserRoleContextFilter implements Filter {
         try {
             String recebido = ((HttpServletRequest) request).getHeader(UserRoleContext.HEADER);
             UserRoleContext.set(sanitizar(recebido));
-            log.info("UserRoleContextFilter: header recebido='{}', contexto setado='{}'", recebido, UserRoleContext.get());
+            if (log.isDebugEnabled()) {
+                log.debug("UserRoleContextFilter: header recebido='{}', contexto setado='{}'",
+                        recebido, UserRoleContext.get());
+            }
             chain.doFilter(request, response);
         } finally {
             UserRoleContext.clear();
@@ -37,7 +40,7 @@ public class UserRoleContextFilter implements Filter {
         try {
             return Papel.valueOf(recebido).name();
         } catch (IllegalArgumentException e) {
-            log.warn("X-User-Role com valor desconhecido, ignorando: {}", recebido);
+            log.warn("X-User-Role com valor desconhecido, ignorando");
             return null;
         }
     }

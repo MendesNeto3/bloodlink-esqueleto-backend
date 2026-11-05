@@ -1,4 +1,22 @@
 -- V9__agendamento.sql
+
+-- A V2 criou uma tabela "agendamento" de um modelo antigo (doador_nome, doador_email, data_hora).
+-- Se ela ainda existir: vazia é removida; com dados é preservada como agendamento_legado.
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1
+               FROM information_schema.columns
+               WHERE table_schema = current_schema()
+                 AND table_name = 'agendamento'
+                 AND column_name = 'data_hora') THEN
+        IF EXISTS (SELECT 1 FROM agendamento) THEN
+ALTER TABLE agendamento RENAME TO agendamento_legado;
+ELSE
+DROP TABLE agendamento;
+END IF;
+END IF;
+END $$;
+
 CREATE TABLE agendamento (
                              id                   UUID         PRIMARY KEY,
                              doador_id            UUID         NOT NULL REFERENCES doador (id),

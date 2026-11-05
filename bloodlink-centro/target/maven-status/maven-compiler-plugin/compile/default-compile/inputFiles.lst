@@ -1,6 +1,8 @@
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\adapter\in\web\CentroController.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\adapter\in\web\CentroExceptionHandler.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\adapter\in\web\dto\AtualizarNomeCentroRequest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\adapter\in\web\dto\AtualizarPerfilCentroRequest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\adapter\in\web\dto\CentroPublicoResponse.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\adapter\in\web\dto\CentroResponse.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\adapter\in\web\dto\RegistrarCentroRequest.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\adapter\out\messaging\RabbitCentroEventPublisherAdapter.java
@@ -12,6 +14,7 @@ C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\j
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\application\port\out\SchemaProvisionerGateway.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\application\service\CentroApplicationService.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\application\service\CentroNaoEncontradoException.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\application\service\DistanciaGeografica.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\BloodlinkCentroApplication.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\config\CorrelationIdFilter.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\config\ErrorResponse.java
@@ -20,3 +23,7 @@ C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\j
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\config\SecurityConfig.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\config\UserRoleContextFilter.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\domain\Centro.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\domain\CentroComDistancia.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\domain\DiaSemana.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\domain\PerfilCentro.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\domain\TipoCentro.java

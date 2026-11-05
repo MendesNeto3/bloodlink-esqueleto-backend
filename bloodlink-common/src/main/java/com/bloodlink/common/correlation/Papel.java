@@ -1,8 +1,9 @@
 package com.bloodlink.common.correlation;
 
 public enum Papel {
-    PLATAFORMA,
-    ADMIN,
-    GESTOR,
-    ENFERMEIRO
+    ADMIN_PLATAFORMA,
+    ADMIN_CENTRO,
+    RECEPCAO,
+    ENFERMEIRO,
+    DOADOR,
 }

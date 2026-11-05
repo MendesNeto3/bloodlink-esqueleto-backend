@@ -1,10 +1,10 @@
 package com.bloodlink.api.doador.application.port.out;
 
+import com.bloodlink.api.agendamento.domain.Agendamento;
 import com.bloodlink.api.doador.domain.Doador;
 
 import java.time.LocalDate;
 import java.util.UUID;
-
 public record ResumoDoadorResponse(UUID doadorId,
                                    String nome,
                                    String cidade,
@@ -19,7 +19,6 @@ public record ResumoDoadorResponse(UUID doadorId,
     public record Solicitacoes(int ativas, ProximaSolicitacao proxima) {
     }
 
-    /** Preenchido quando os agendamentos existirem. */
     public record ProximaSolicitacao(UUID id, LocalDate data, String hora, String status) {
     }
 
@@ -31,6 +30,11 @@ public record ResumoDoadorResponse(UUID doadorId,
 
     public static ResumoDoadorResponse de(ResumoDoador resumo, String centroId) {
         Doador d = resumo.doador();
+        Agendamento ag = resumo.agendamentoAtivo();
+        Solicitacoes solicitacoes = ag == null
+                ? new Solicitacoes(0, null)
+                : new Solicitacoes(1, new ProximaSolicitacao(
+                ag.id(), ag.date(), ag.hora().toString(), ag.status().name()));
         return new ResumoDoadorResponse(
                 d.id(),
                 d.nome(),
@@ -38,7 +42,7 @@ public record ResumoDoadorResponse(UUID doadorId,
                 d.uf(),
                 d.tipoSanguineo() == null ? null : d.tipoSanguineo().name(),
                 centroId,
-                new Solicitacoes(0, null),      // até os agendamentos existirem
+                solicitacoes,
                 new Doacoes(resumo.totalDoacoes(), resumo.ultimaDoacao()),
                 new Documentos(0),              // até os documentos existirem
                 ElegibilidadeResponse.de(resumo.elegibilidade()));
