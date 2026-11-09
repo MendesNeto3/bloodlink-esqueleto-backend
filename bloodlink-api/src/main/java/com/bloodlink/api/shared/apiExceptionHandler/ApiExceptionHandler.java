@@ -28,7 +28,8 @@ import java.util.Map;
         "com.bloodlink.api.reserva",
         "com.bloodlink.api.documento",
         "com.bloodlink.api.agendamento",
-        "com.bloodlink.api.centro"
+        "com.bloodlink.api.centro",
+        "com.bloodlink.api.painel"
 })
 public class ApiExceptionHandler {
 

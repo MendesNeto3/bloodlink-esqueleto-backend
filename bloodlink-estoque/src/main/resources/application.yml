@@ -4,19 +4,24 @@ server:
 spring:
   application:
     name: bloodlink-estoque
+  # só valida JWT; sem isso o Spring gera um usuário padrão com senha aleatória
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
   datasource:
     url: jdbc:postgresql://localhost:5432/bloodlink
     username: bloodlink
     password: dev_only
   jpa:
     hibernate:
-      ddl-auto: validate
-      # o bloodlink-tenant-starter registra multiTenancy=SCHEMA e os
-      # resolvers automaticamente — nada a configurar aqui além disso
-      multiTenancy: SCHEMA
+      ddl-auto: none
     open-in-view: false
+    properties:
+      hibernate:
+        # as instâncias do resolver e do provider vêm do bloodlink-tenant-starter
+        multiTenancy: SCHEMA
   flyway:
-    enabled: false # este serviço não usa o Flyway "global" — migrations tenant rodam via /internal/schemas/provisionar
+    enabled: false # as tabelas deste serviço são criadas pelas migrations tenant da API (V10)
   rabbitmq:
     host: localhost
     port: 5672
@@ -29,6 +34,13 @@ spring:
           max-attempts: 3
           initial-interval: 2000
         default-requeue-rejected: false
+
+bloodlink:
+  jwt:
+    # o mesmo segredo do Auth e da API
+    segredo: ${BLOODLINK_JWT_SEGREDO}
+  estoque:
+    validade-padrao-dias: 42
 
 management:
   endpoints:
