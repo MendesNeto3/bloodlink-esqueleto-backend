@@ -1,14 +1,15 @@
 package com.bloodlink.api.agendamento.application.service;
 
+import com.bloodlink.api.agendamento.adapter.in.web.dto.AgendamentoComDoador;
 import com.bloodlink.api.agendamento.application.port.in.AgendamentoRepositoryPort;
 import com.bloodlink.api.agendamento.application.usecase.AgendamentoUseCase;
-import com.bloodlink.api.agendamento.domain.Agendamento;
-import com.bloodlink.api.agendamento.domain.FiltroAgendamento;
-import com.bloodlink.api.agendamento.domain.SolicitarAgendamentoComando;
+import com.bloodlink.api.agendamento.domain.*;
 import com.bloodlink.api.doador.adapter.out.persistence.DoacaoRepositoryPort;
 import com.bloodlink.api.doador.adapter.out.persistence.ImpedimentoRepositoryPort;
+import com.bloodlink.api.doador.application.port.in.DoacaoUseCase;
 import com.bloodlink.api.doador.application.port.in.DoadorRepositoryPort;
 import com.bloodlink.api.doador.application.port.out.Impedimento;
+import com.bloodlink.api.doador.application.port.out.RegistrarDoacaoComando;
 import com.bloodlink.api.doador.application.port.out.ResultadoElegibilidade;
 import com.bloodlink.api.doador.application.service.AvaliadorElegibilidade;
 import com.bloodlink.api.doador.doadorException.OperacaoDoadorException;
@@ -21,16 +22,16 @@ import com.bloodlink.auth.shared.exceptions.RegraDeNegocioException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Service
 public class AgendamentoService implements AgendamentoUseCase {
@@ -40,11 +41,14 @@ public class AgendamentoService implements AgendamentoUseCase {
     private static final int OBSERVACAO_MAXIMA = 500;
     private static final int MOTIVO_MAXIMO = 300;
     private static final int LIMITE_MAXIMO = 200;
+    private static final int VOLUME_MINIMO_ML = 300;
+    private static final int VOLUME_MAXIMO_ML = 600;
 
     private final AgendamentoRepositoryPort agendamentos;
     private final DoadorRepositoryPort doadores;
     private final DoacaoRepositoryPort doacoes;
     private final ImpedimentoRepositoryPort impedimentos;
+    private final DoacaoUseCase doacaoUseCase;
     private final AvaliadorElegibilidade avaliador;
     private final ConfiguracaoAgendamento configuracao;
     private final Clock clock;
@@ -53,6 +57,7 @@ public class AgendamentoService implements AgendamentoUseCase {
                               DoadorRepositoryPort doadores,
                               DoacaoRepositoryPort doacoes,
                               ImpedimentoRepositoryPort impedimentos,
+                              DoacaoUseCase doacaoUseCase,
                               AvaliadorElegibilidade avaliador,
                               ConfiguracaoAgendamento configuracao,
                               Clock clock) {
@@ -60,6 +65,7 @@ public class AgendamentoService implements AgendamentoUseCase {
         this.doadores = doadores;
         this.doacoes = doacoes;
         this.impedimentos = impedimentos;
+        this.doacaoUseCase = doacaoUseCase;
         this.avaliador = avaliador;
         this.configuracao = configuracao;
         this.clock = clock;
@@ -81,8 +87,11 @@ public class AgendamentoService implements AgendamentoUseCase {
         }
         LocalTime hora = comando.hora().truncatedTo(ChronoUnit.MINUTES);
         String observacao = texto(comando.observacao(), OBSERVACAO_MAXIMA, "A observação");
-        configuracao.validarData(comando.data());
-        if (!configuracao.atende(comando.data())) {
+        if (comando.origem() == OrigemAgendamento.EQUIPE) {
+            configuracao.validarDataParaEquipe(comando.data());
+        } else {
+            configuracao.validarData(comando.data());
+        }        if (!configuracao.atende(comando.data())) {
             throw new IllegalArgumentException("O hemocentro não atende neste dia da semana");
         }
         if (!configuracao.horarios().contains(hora)) {
@@ -112,8 +121,8 @@ public class AgendamentoService implements AgendamentoUseCase {
             }
 
             Agendamento salvo = agendamentos.salvar(Agendamento.novo(
-                    comando.doadorId(), comando.data(),hora, comando.origem(),
-                    observacao, comando .solicitadoPor(), clock.instant()));
+                    comando.doadorId(), comando.data(), hora, comando.origem(),
+                    observacao, comando.solicitadoPor(), clock.instant()));
             log.info("Agendamento {} solicitado para o doador {}", salvo.id(), comando.doadorId());
             return salvo;
         });
@@ -149,8 +158,7 @@ public class AgendamentoService implements AgendamentoUseCase {
     @Override
     public Agendamento buscar(UUID agendamentoId) {
         exigir(agendamentoId, "O id do agendamento é obrigatório");
-        return executar("consultar o agendamento", agendamentoId, () -> agendamentos.buscarPorId(agendamentoId)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Agendamento", agendamentoId)));
+        return executar("consultar o agendamento", agendamentoId, () -> buscarOuFalhar(agendamentoId));
     }
 
     @Override
@@ -171,9 +179,7 @@ public class AgendamentoService implements AgendamentoUseCase {
     public Agendamento confirmar(UUID agendamentoId) {
         exigir(agendamentoId, "O id do agendamento é obrigatório");
         return executar("confirmar o agendamento", agendamentoId, () -> {
-            Agendamento atual = agendamentos.buscarPorId(agendamentoId)
-                    .orElseThrow(() -> new RecursoNaoEncontradoException("Agendamento", agendamentoId));
-            Agendamento confirmado = agendamentos.salvar(atual.confirmar(clock.instant()));
+            Agendamento confirmado = agendamentos.salvar(buscarOuFalhar(agendamentoId).confirmar(clock.instant()));
             log.info("Agendamento {} confirmado", confirmado.id());
             return confirmado;
         });
@@ -184,12 +190,82 @@ public class AgendamentoService implements AgendamentoUseCase {
         exigir(agendamentoId, "O id do agendamento é obrigatório");
         String motivoValidado = texto(motivo, MOTIVO_MAXIMO, "O motivo");
         return executar("cancelar o agendamento", agendamentoId, () -> {
-            Agendamento atual = agendamentos.buscarPorId(agendamentoId)
-                    .orElseThrow(() -> new RecursoNaoEncontradoException("Agendamento", agendamentoId));
-            Agendamento cancelado = agendamentos.salvar(atual.cancelar(motivoValidado, clock.instant()));
+            Agendamento cancelado = agendamentos.salvar(
+                    buscarOuFalhar(agendamentoId).cancelar(motivoValidado, clock.instant()));
             log.info("Agendamento {} cancelado pela equipe", cancelado.id());
             return cancelado;
         });
+    }
+
+    /**
+     * Registra a doação (hoje) e conclui o agendamento. Tudo na mesma transação: se a doação for
+     * recusada (inelegível, por exemplo), o agendamento continua como estava.
+     */
+    @Override
+    @Transactional
+    public Agendamento concluir(UUID agendamentoId, int volumeMl, UUID registradoPor) {
+        exigir(agendamentoId, "O id do agendamento é obrigatório");
+        exigir(registradoPor, "Não foi possível identificar quem registrou a doação");
+        return executar("concluir o agendamento", agendamentoId, () -> {
+            Agendamento atual = buscarOuFalhar(agendamentoId);
+            LocalDate hoje = LocalDate.now(clock);
+            exigirConfirmadoNoDia(atual, hoje, "concluir");
+            if (volumeMl < VOLUME_MINIMO_ML || volumeMl > VOLUME_MAXIMO_ML) {
+                throw new RegraDeNegocioException("O volume da doação deve estar entre "
+                        + VOLUME_MINIMO_ML + " e " + VOLUME_MAXIMO_ML + " mL");
+            }
+            var doacao = doacaoUseCase.registrar(
+                    new RegistrarDoacaoComando(atual.doadorId(), hoje, volumeMl, registradoPor));
+            Agendamento concluido = agendamentos.salvar(atual.concluir(doacao.id(), clock.instant()));
+            log.info("Agendamento {} concluído com a doação {}", concluido.id(), doacao.id());
+            return concluido;
+        });
+    }
+
+    @Override
+    public Agendamento registrarFalta(UUID agendamentoId) {
+        exigir(agendamentoId, "O id do agendamento é obrigatório");
+        return executar("registrar a falta", agendamentoId, () -> {
+            Agendamento atual = buscarOuFalhar(agendamentoId);
+            exigirConfirmadoNoDia(atual, LocalDate.now(clock), "registrar falta de");
+            Agendamento faltou = agendamentos.salvar(atual.registrarFalta(clock.instant()));
+            log.info("Falta registrada no agendamento {}", faltou.id());
+            return faltou;
+        });
+    }
+
+    @Override
+    public List<AgendamentoComDoador> listarAgenda(FiltroAgendamento filtro, int limite) {
+        List<Agendamento> lista = listar(filtro, limite);
+        if (lista.isEmpty()) {
+            return List.of();
+        }
+        return executar("montar a agenda", null, () -> {
+            Set<UUID> ids = lista.stream().map(Agendamento::doadorId).collect(Collectors.toSet());
+            Map<UUID, Doador> porId = doadores.buscarPorIds(ids);
+            return lista.stream().map(a -> {
+                Doador d = porId.get(a.doadorId());
+                return new AgendamentoComDoador(a,
+                        d == null ? null : d.nome(),
+                        d == null ? null : d.telefone(),
+                        d == null || d.tipoSanguineo() == null ? null : d.tipoSanguineo().toString());
+            }).toList();
+        });
+    }
+
+    private Agendamento buscarOuFalhar(UUID agendamentoId) {
+        return agendamentos.buscarPorId(agendamentoId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Agendamento", agendamentoId));
+    }
+
+    private static void exigirConfirmadoNoDia(Agendamento agendamento, LocalDate hoje, String acao) {
+        if (agendamento.status() != StatusAgendamento.CONFIRMADO) {
+            throw new ConflitoException("Só é possível " + acao + " um agendamento confirmado");
+        }
+        if (agendamento.date().isAfter(hoje)) {
+            throw new RegraDeNegocioException("Só é possível " + acao
+                    + " o agendamento a partir do dia " + agendamento.date().format(DATA_BR));
+        }
     }
 
     private <T> T executar(String operacao, UUID referencia, Supplier<T> acao) {

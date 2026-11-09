@@ -4,6 +4,8 @@ import com.bloodlink.api.doador.application.port.out.FiltroDoador;
 import com.bloodlink.api.doador.domain.Doador;
 import com.bloodlink.api.shared.Pagina.Pagina;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,4 +18,5 @@ public interface DoadorRepositoryPort {
     Pagina<Doador> listar(FiltroDoador filtro, int Pagina, int tamanho);
     Optional<Doador> buscarPorEmail(String email);
     Optional<Doador> buscarPorNome(String nome);
+    Map<UUID, Doador> buscarPorIds(Collection<UUID> ids);
 }

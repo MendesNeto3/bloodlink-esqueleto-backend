@@ -1,5 +1,6 @@
 package com.bloodlink.api.agendamento.application.usecase;
 
+import com.bloodlink.api.agendamento.adapter.in.web.dto.AgendamentoComDoador;
 import com.bloodlink.api.agendamento.domain.Agendamento;
 import com.bloodlink.api.agendamento.domain.FiltroAgendamento;
 import com.bloodlink.api.agendamento.domain.SolicitarAgendamentoComando;
@@ -26,4 +27,10 @@ public interface AgendamentoUseCase {
     Agendamento confirmar(UUID agendamentoId);
 
     Agendamento cancelarPelaEquipe(UUID agendamentoId, String motivo);
+
+    Agendamento concluir(UUID agendamentoId, int volumeMl, UUID registradoPor);
+
+    Agendamento registrarFalta(UUID agendamentoId);
+
+    List<AgendamentoComDoador> listarAgenda(FiltroAgendamento filtro, int limite);
 }

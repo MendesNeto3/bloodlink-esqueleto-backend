@@ -1,7 +1,9 @@
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\main\java\com\bloodlink\api\agendamento\adapter\in\web\AgendamentoController.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\main\java\com\bloodlink\api\agendamento\adapter\in\web\AgendamentoMeController.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\main\java\com\bloodlink\api\agendamento\adapter\in\web\dto\AgendamentoResponse.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\main\java\com\bloodlink\api\agendamento\adapter\in\web\dto\AgendarPelaEquipeRequest.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\main\java\com\bloodlink\api\agendamento\adapter\in\web\dto\CancelarAgendamentoRequest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\main\java\com\bloodlink\api\agendamento\adapter\in\web\dto\ConcluirAgendamentoRequest.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\main\java\com\bloodlink\api\agendamento\adapter\in\web\dto\HorariosResponse.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\main\java\com\bloodlink\api\agendamento\adapter\in\web\dto\SolicitarAgendamentoRequest.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\main\java\com\bloodlink\api\agendamento\adapter\out\persistence\AgendamentoJpaEntity.java

@@ -84,4 +84,14 @@ public class ConfiguracaoAgendamento {
                     "Escolha uma data entre " + primeiro.format(DATA_BR) + " e " + ultimo.format(DATA_BR));
         }
     }
+
+    /** Para a equipe: de hoje até a janela máxima, sem a antecedência mínima (encaixe no balcão). */
+    public void validarDataParaEquipe(LocalDate data) {
+        LocalDate hoje = LocalDate.now(clock);
+        LocalDate ultimo = hoje.plusDays(janelaMaximaDias);
+        if (data.isBefore(hoje) || data.isAfter(ultimo)) {
+            throw new IllegalArgumentException(
+                    "Escolha uma data entre " + hoje.format(DATA_BR) + " e " + ultimo.format(DATA_BR));
+        }
+    }
 }

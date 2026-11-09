@@ -38,6 +38,7 @@ com\bloodlink\api\agendamento\application\service\ConsultarHorariosService.class
 com\bloodlink\api\doador\application\port\out\ImpedimentoResponse.class
 com\bloodlink\api\shared\config\CentroRegistradoConfig.class
 com\bloodlink\api\shared\tenant\adapter\in\messaging\CentroRegistradoEventListener.class
+com\bloodlink\api\agendamento\adapter\in\web\dto\ConcluirAgendamentoRequest.class
 com\bloodlink\api\shared\tenant\application\port\out\TenantProvisionamentoRepositoryPort.class
 com\bloodlink\api\doador\adapter\in\web\dto\DoadorResponse.class
 com\bloodlink\api\agendamento\adapter\out\persistence\AgendamentoJpaRepository$ContagemHorario.class
@@ -136,6 +137,7 @@ com\bloodlink\api\doador\application\port\out\ResumoDoadorResponse$ProximaSolici
 com\bloodlink\api\shared\tenant\exception\ProvisionamentoNaoEncontradoException.class
 com\bloodlink\api\agendamento\adapter\in\web\dto\AgendamentoResponse.class
 com\bloodlink\api\doador\application\service\RegistarDoadorService.class
+com\bloodlink\api\agendamento\adapter\in\web\dto\AgendarPelaEquipeRequest.class
 com\bloodlink\api\agendamento\application\port\in\AgendamentoRepositoryPort.class
 com\bloodlink\api\shared\tenant\adapter\in\web\TenantExceptionHandler.class
 com\bloodlink\api\doador\adapter\out\persistence\FichaPreDoacaoJpaEntity.class

@@ -42,6 +42,25 @@ public record Agendamento(UUID id,
                 motivo, solicitadoPor, doacaoId, criadoEm, agora);
     }
 
+    public Agendamento concluir(UUID doacaoId, Instant agora) {
+        if (status != StatusAgendamento.CONFIRMADO) {
+            throw new ConflitoException("Só é possível concluir um agendamento confirmado");
+        }
+        if (doacaoId == null) {
+            throw new IllegalArgumentException("A doação é obrigatória para concluir o agendamento");
+        }
+        return new Agendamento(id, doadorId, date, hora, StatusAgendamento.CONCLUIDO, origem, observacao,
+                motivoCancelamento, solicitadoPor, doacaoId, criadoEm, agora);
+    }
+
+    public Agendamento registrarFalta(Instant agora) {
+        if (status != StatusAgendamento.CONFIRMADO) {
+            throw new ConflitoException("Só é possível registrar falta de um agendamento confirmado");
+        }
+        return new Agendamento(id, doadorId, date, hora, StatusAgendamento.FALTOU, origem, observacao,
+                motivoCancelamento, solicitadoPor, null, criadoEm, agora);
+    }
+
     @Override
     public String toString() {
         return "Agendamento[id=" + id + "]";

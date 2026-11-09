@@ -71,6 +71,16 @@ public class DoadorRepositoryAdapter implements DoadorRepositoryPort, DoacaoRepo
     }
 
     @Override
+    public Map<UUID, Doador> buscarPorIds(Collection<UUID> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Map.of();
+        }
+        return doadorJpaRepository.findAllById(ids).stream()
+                .map(DoadorJpaEntity::paraDominio)
+                .collect(Collectors.toMap(Doador::id, d -> d));
+    }
+
+    @Override
     public Pagina<Doador> listar(FiltroDoador filtro, int pagina, int tamanho) {
         Specification<DoadorJpaEntity> spec = (root, query, cb) -> {
             List<Predicate> predicados = new ArrayList<>();
