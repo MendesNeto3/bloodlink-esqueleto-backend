@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @Service
 public class CentroApplicationService implements CentroUseCase {
@@ -21,6 +22,7 @@ public class CentroApplicationService implements CentroUseCase {
     private static final Logger log = LoggerFactory.getLogger(CentroApplicationService.class);
 
     private static final int NOME_TAMANHO_MAXIMO = 150;
+    private static final Pattern FORMATO_CENTRO_ID = Pattern.compile("^[a-f0-9]{12}$");
 
     private final CentroRepositoryPort centroRepositoryPort;
     private final SchemaProvisionerGateway schemaProvisionerGateway;
@@ -118,6 +120,15 @@ public class CentroApplicationService implements CentroUseCase {
         log.info("Centro desativado: id={}, nome={}", centroDesativado.id(), centroDesativado.nome());
 
         return centroDesativado;
+    }
+
+    @Override
+    public Centro buscarPorCentroId(String centroId) {
+        if (centroId == null || !FORMATO_CENTRO_ID.matcher(centroId.trim()).matches()) {
+            throw new IllegalArgumentException("centroId inválido");
+        }
+        return centroRepositoryPort.buscarPorSchema("centro_" + centroId.trim())
+                .orElseThrow(CentroNaoEncontradoException::new);
     }
 
     /** Quem não é da plataforma só enxerga o próprio centro; os outros respondem como "não encontrado". */

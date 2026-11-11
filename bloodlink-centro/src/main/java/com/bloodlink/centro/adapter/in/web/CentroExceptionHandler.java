@@ -19,8 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@RestControllerAdvice(assignableTypes = CentroController.class)
-public class CentroExceptionHandler {
+@RestControllerAdvice(assignableTypes = {CentroController.class, CentroInternoController.class})public class CentroExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(CentroExceptionHandler.class);
 

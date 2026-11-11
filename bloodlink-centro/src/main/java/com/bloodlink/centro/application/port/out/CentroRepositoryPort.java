@@ -12,5 +12,7 @@ public interface CentroRepositoryPort {
 
     Optional<Centro> buscarPorId(UUID id);
 
+    Optional<Centro> buscarPorSchema(String schema);
+
     Centro salvar (Centro centro);
 }

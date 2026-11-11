@@ -22,4 +22,6 @@ public interface CentroUseCase {
     Centro atualizarPerfil(UUID id, PerfilCentro perfil, String centroIdSolicitante);
 
     Centro desativar(UUID id);
+
+    Centro buscarPorCentroId(String centroId);
 }
