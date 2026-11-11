@@ -15,7 +15,10 @@ public record PerfilCentro(TipoCentro tipo,
                            BigDecimal longitude,
                            Set<DiaSemana> diasFuncionamento,
                            LocalTime abertura,
-                           LocalTime fechamento) {
+                           LocalTime fechamento,
+                           Integer capacidadeDiaria) {
+
+    private static final int CAPACIDADE_MAXIMA = 100_000;
 
     private static final Set<String> UFS = Set.of(
             "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA",
@@ -46,13 +49,22 @@ public record PerfilCentro(TipoCentro tipo,
         if (abertura != null && !abertura.isBefore(fechamento)) {
             throw new IllegalArgumentException("A abertura deve ser antes do fechamento");
         }
+        if (capacidadeDiaria != null && (capacidadeDiaria < 1 || capacidadeDiaria > CAPACIDADE_MAXIMA)) {
+            throw new IllegalArgumentException("A capacidade diária deve estar entre 1 e " + CAPACIDADE_MAXIMA);
+        }
         diasFuncionamento = (diasFuncionamento == null || diasFuncionamento.isEmpty())
                 ? Collections.unmodifiableSet(EnumSet.noneOf(DiaSemana.class))
                 : Collections.unmodifiableSet(EnumSet.copyOf(diasFuncionamento));
     }
 
     public static PerfilCentro vazio() {
-        return new PerfilCentro(null, null, null, null, null, null, null, null, null);
+        return new PerfilCentro(null, null, null, null, null, null, null, null, null, null);
+    }
+
+    /** Mesmo perfil com outra capacidade diária. */
+    public PerfilCentro comCapacidadeDiaria(Integer novaCapacidade) {
+        return new PerfilCentro(tipo, endereco, cidade, uf, latitude, longitude, diasFuncionamento,
+                abertura, fechamento, novaCapacidade);
     }
 
     private static String texto(String valor, int max, String campo) {

@@ -11,8 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.text.Normalizer;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -22,6 +25,7 @@ public class CentroApplicationService implements CentroUseCase {
     private static final Logger log = LoggerFactory.getLogger(CentroApplicationService.class);
 
     private static final int NOME_TAMANHO_MAXIMO = 150;
+    private static final int BUSCA_TAMANHO_MAXIMO = 100;
     private static final Pattern FORMATO_CENTRO_ID = Pattern.compile("^[a-f0-9]{12}$");
 
     private final CentroRepositoryPort centroRepositoryPort;
@@ -34,13 +38,14 @@ public class CentroApplicationService implements CentroUseCase {
     }
 
     @Override
-    public Centro registrar(String nome) {
+    public Centro registrar(String nome, PerfilCentro perfil) {
         String nomeValidado = validarNome(nome);
 
         String schemaSemPrefixo = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
         String schema = "centro_" + schemaSemPrefixo;
 
-        Centro centroNovo = new Centro(null, nomeValidado, schema, true);
+        Centro centroNovo = new Centro(null, nomeValidado, schema, true,
+                perfil == null ? PerfilCentro.vazio() : perfil);
         Centro centroSalvo = centroRepositoryPort.salvar(centroNovo);
 
         log.info("Centro registrado: id={}, nome={}", centroSalvo.id(), centroSalvo.nome());
@@ -64,13 +69,17 @@ public class CentroApplicationService implements CentroUseCase {
     }
 
     @Override
-    public List<CentroComDistancia> listarPublicos(Double lat, Double lng) {
+    public List<CentroComDistancia> listarPublicos(Double lat, Double lng, String busca) {
         if ((lat == null) != (lng == null)) {
             throw new IllegalArgumentException("Informe lat e lng juntos");
         }
         if (lat != null && (lat < -90 || lat > 90 || lng < -180 || lng > 180)) {
             throw new IllegalArgumentException("Coordenadas fora do intervalo válido");
         }
+        if (busca != null && busca.trim().length() > BUSCA_TAMANHO_MAXIMO) {
+            throw new IllegalArgumentException("A busca excede o tamanho máximo de " + BUSCA_TAMANHO_MAXIMO + " caracteres");
+        }
+        String termo = normalizar(busca);
 
         Comparator<CentroComDistancia> porNome =
                 Comparator.comparing(c -> c.centro().nome(), String.CASE_INSENSITIVE_ORDER);
@@ -80,9 +89,19 @@ public class CentroApplicationService implements CentroUseCase {
                 Comparator.nullsLast(Comparator.<Double>naturalOrder())).thenComparing(porNome);
 
         return listarAtivos().stream()
+                .filter(centro -> termo.isEmpty() || corresponde(centro, termo))
                 .map(centro -> new CentroComDistancia(centro, distancia(centro, lat, lng)))
                 .sorted(ordem)
                 .toList();
+    }
+
+    @Override
+    public Centro buscarPorCentroId(String centroId) {
+        if (centroId == null || !FORMATO_CENTRO_ID.matcher(centroId.trim()).matches()) {
+            throw new IllegalArgumentException("centroId inválido");
+        }
+        return centroRepositoryPort.buscarPorSchema("centro_" + centroId.trim())
+                .orElseThrow(CentroNaoEncontradoException::new);
     }
 
     @Override
@@ -98,6 +117,7 @@ public class CentroApplicationService implements CentroUseCase {
         return centroRepositoryPort.salvar(centroAtualizado);
     }
 
+    /** Se o perfil enviado não trouxer a capacidade diária, a atual é mantida. */
     @Override
     public Centro atualizarPerfil(UUID id, PerfilCentro perfil, String centroIdSolicitante) {
         if (perfil == null) {
@@ -105,9 +125,13 @@ public class CentroApplicationService implements CentroUseCase {
         }
         Centro centroAtual = buscarDoSolicitante(id, centroIdSolicitante);
 
+        PerfilCentro novoPerfil = perfil.capacidadeDiaria() == null
+                ? perfil.comCapacidadeDiaria(centroAtual.perfil().capacidadeDiaria())
+                : perfil;
+
         log.info("Perfil do centro atualizado: id={}", centroAtual.id());
 
-        return centroRepositoryPort.salvar(centroAtual.comPerfil(perfil));
+        return centroRepositoryPort.salvar(centroAtual.comPerfil(novoPerfil));
     }
 
     @Override
@@ -122,15 +146,6 @@ public class CentroApplicationService implements CentroUseCase {
         return centroDesativado;
     }
 
-    @Override
-    public Centro buscarPorCentroId(String centroId) {
-        if (centroId == null || !FORMATO_CENTRO_ID.matcher(centroId.trim()).matches()) {
-            throw new IllegalArgumentException("centroId inválido");
-        }
-        return centroRepositoryPort.buscarPorSchema("centro_" + centroId.trim())
-                .orElseThrow(CentroNaoEncontradoException::new);
-    }
-
     /** Quem não é da plataforma só enxerga o próprio centro; os outros respondem como "não encontrado". */
     private Centro buscarDoSolicitante(UUID id, String centroIdSolicitante) {
         Centro centro = centroRepositoryPort.buscarPorId(id)
@@ -140,6 +155,23 @@ public class CentroApplicationService implements CentroUseCase {
             throw new CentroNaoEncontradoException();
         }
         return centro;
+    }
+
+    private static boolean corresponde(Centro centro, String termo) {
+        PerfilCentro p = centro.perfil();
+        String alvo = normalizar(centro.nome() + " " + Objects.toString(p.cidade(), "")
+                + " " + Objects.toString(p.endereco(), ""));
+        return alvo.contains(termo);
+    }
+
+    /** Minúsculas e sem acento; null e texto em branco viram "". */
+    private static String normalizar(String texto) {
+        if (texto == null || texto.isBlank()) {
+            return "";
+        }
+        return Normalizer.normalize(texto.trim(), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase(Locale.ROOT);
     }
 
     private static Double distancia(Centro centro, Double lat, Double lng) {

@@ -17,12 +17,13 @@ public record AtualizarPerfilCentroRequest(TipoCentro tipo,
                                            BigDecimal longitude,
                                            List<DiaSemana> diasFuncionamento,
                                            LocalTime abertura,
-                                           LocalTime fechamento) {
+                                           LocalTime fechamento,
+                                           Integer capacidadeDiaria) {
 
     public PerfilCentro paraPerfil() {
         return new PerfilCentro(tipo, endereco, cidade, uf, latitude, longitude,
-                diasFuncionamento == null ? null : EnumSet.copyOf(
-                        diasFuncionamento.isEmpty() ? EnumSet.noneOf(DiaSemana.class) : diasFuncionamento),
-                abertura, fechamento);
+                diasFuncionamento == null || diasFuncionamento.isEmpty()
+                        ? null : EnumSet.copyOf(diasFuncionamento),
+                abertura, fechamento, capacidadeDiaria);
     }
 }

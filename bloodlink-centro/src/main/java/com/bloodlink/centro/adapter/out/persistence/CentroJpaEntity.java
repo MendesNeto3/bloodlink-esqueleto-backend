@@ -50,4 +50,7 @@ public class CentroJpaEntity {
     private LocalTime abertura;
 
     private LocalTime fechamento;
+
+    @Column(name = "capacidade_diaria")
+    private Integer capacidadeDiaria;
 }

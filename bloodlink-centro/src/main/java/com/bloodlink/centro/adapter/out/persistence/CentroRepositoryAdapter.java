@@ -59,6 +59,7 @@ public class CentroRepositoryAdapter implements CentroRepositoryPort {
                 : perfil.diasFuncionamento().stream().map(DiaSemana::name).collect(Collectors.joining(",")));
         entity.setAbertura(perfil.abertura());
         entity.setFechamento(perfil.fechamento());
+        entity.setCapacidadeDiaria(perfil.capacidadeDiaria());
 
         return toDomain(centroJpaRepository.save(entity));
     }
@@ -71,7 +72,7 @@ public class CentroRepositoryAdapter implements CentroRepositoryPort {
                 .collect(Collectors.toSet());
         PerfilCentro perfil = new PerfilCentro(entity.getTipo(), entity.getEndereco(), entity.getCidade(),
                 entity.getUf(), entity.getLatitude(), entity.getLongitude(), dias,
-                entity.getAbertura(), entity.getFechamento());
+                entity.getAbertura(), entity.getFechamento(), entity.getCapacidadeDiaria());
         return new Centro(entity.getId(), entity.getNome(), entity.getSchema(), entity.isAtivo(), perfil);
     }
 }

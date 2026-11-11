@@ -1,10 +1,5 @@
 package com.bloodlink.estoque.adapter.in.web.dto;
 
-import com.bloodlink.estoque.adapter.in.web.dto.BaixaRequest;
-import com.bloodlink.estoque.adapter.in.web.dto.BaixaResponse;
-import com.bloodlink.estoque.adapter.in.web.dto.EntradaLoteRequest;
-import com.bloodlink.estoque.adapter.in.web.dto.LoteResponse;
-import com.bloodlink.estoque.adapter.in.web.dto.ParametrosRequest;
 import com.bloodlink.estoque.application.port.in.EstoqueUseCase;
 import com.bloodlink.estoque.application.port.in.EstoqueUseCase.BaixaComando;
 import com.bloodlink.estoque.application.port.in.EstoqueUseCase.EntradaLoteComando;

@@ -24,28 +24,32 @@ public class CentroController {
         this.centroUseCase = centroUseCase;
     }
 
+    // só o nome é obrigatório; o perfil e a capacidade podem vir junto (modal "Criar centro de doação")
     @PostMapping
     public ResponseEntity<CentroResponse> registar(@RequestBody @Valid RegistrarCentroRequest request) {
-        var centro = centroUseCase.registrar(request.nome());
+        var centro = centroUseCase.registrar(request.nome(), request.paraPerfil());
         return ResponseEntity.status(HttpStatus.CREATED).body(CentroResponse.toResponse(centro));
     }
 
     @GetMapping
-    public List<CentroResponse> listar() {
-        return centroUseCase.listar()
+    public ResponseEntity<List<CentroDetalheResponse>> listar() {
+        return ResponseEntity.ok(centroUseCase.listar()
                 .stream()
-                .map(CentroResponse::toResponse)
-                .toList();
+                .map(CentroDetalheResponse::de)
+                .toList());
     }
 
     // pública: só centros ativos, sem schema nem id interno. Com lat e lng calcula a distância e ordena.
+    // q (opcional) filtra por nome, cidade ou endereço, sem diferenciar acento nem maiúscula.
     @GetMapping("/publicos")
-    public List<CentroPublicoResponse> listarPublicos(@RequestParam(required = false) Double lat,
-                                                      @RequestParam(required = false) Double lng) {
-        return centroUseCase.listarPublicos(lat, lng)
+    public ResponseEntity<List<CentroPublicoResponse>> listarPublicos(
+            @RequestParam(required = false) Double lat,
+            @RequestParam(required = false) Double lng,
+            @RequestParam(name = "q", required = false) String q) {
+        return ResponseEntity.ok(centroUseCase.listarPublicos(lat, lng, q)
                 .stream()
                 .map(CentroPublicoResponse::de)
-                .toList();
+                .toList());
     }
 
     @PatchMapping("/{id}/desativar")
