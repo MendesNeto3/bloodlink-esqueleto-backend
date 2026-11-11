@@ -5,6 +5,7 @@ import com.bloodlink.estoque.application.exception.OperacaoEstoqueException;
 import com.bloodlink.estoque.application.exception.RecursoNaoEncontradoException;
 import com.bloodlink.estoque.application.exception.RegraDeNegocioException;
 import com.bloodlink.estoque.application.port.in.EstoqueUseCase;
+import com.bloodlink.estoque.application.port.out.EstoqueEventosPort;
 import com.bloodlink.estoque.application.port.out.EstoqueRepositoryPort;
 import com.bloodlink.estoque.application.port.out.EstoqueRepositoryPort.LoteDisponivel;
 import com.bloodlink.estoque.domain.Lote;
@@ -31,12 +32,14 @@ public class EstoqueService implements EstoqueUseCase {
     private static final int DIAS_ALERTA_VENCIMENTO = 7;
 
     private final EstoqueRepositoryPort estoque;
+    private final EstoqueEventosPort eventos;
     private final Clock clock;
     private final int validadePadraoDias;
 
-    public EstoqueService(EstoqueRepositoryPort estoque, Clock clock,
+    public EstoqueService(EstoqueRepositoryPort estoque, EstoqueEventosPort eventos, Clock clock,
                           @Value("${bloodlink.estoque.validade-padrao-dias:42}") int validadePadraoDias) {
         this.estoque = estoque;
+        this.eventos = eventos;
         this.clock = clock;
         this.validadePadraoDias = validadePadraoDias;
     }
@@ -116,8 +119,15 @@ public class EstoqueService implements EstoqueUseCase {
                 estoque.atualizarQuantidadeLote(lote.id(), lote.quantidade() - retira);
                 falta -= retira;
             }
+            long restante = disponivel - quantidade;
             log.info("Baixa de {} un de {} registrada por {}", quantidade, tipo.name(), c.registradoPor());
-            return new ResultadoBaixa(tipo, quantidade, disponivel - quantidade);
+
+            // alerta só na passada de "acima do limiar" para "no limiar ou abaixo"
+            int limiar = estoque.limiarCritico(tipo);
+            if (disponivel > limiar && restante <= limiar) {
+                eventos.estoqueCritico(tipo, restante, limiar);
+            }
+            return new ResultadoBaixa(tipo, quantidade, restante);
         });
     }
 

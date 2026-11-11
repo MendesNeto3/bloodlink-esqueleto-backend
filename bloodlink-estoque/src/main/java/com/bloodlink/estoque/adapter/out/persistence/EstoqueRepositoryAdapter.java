@@ -124,6 +124,13 @@ public class EstoqueRepositoryAdapter implements EstoqueRepositoryPort {
         return q.executeUpdate() > 0;
     }
 
+    @Override
+    public int limiarCritico(TipoSanguineo tipo) {
+        Query q = em.createNativeQuery("select limiar_critico from estoque where tipo_sanguineo = :tipo");
+        q.setParameter("tipo", tipo.name());
+        return ((Number) q.getSingleResult()).intValue();
+    }
+
     private static LocalDate data(Object o) {
         if (o instanceof LocalDate d) return d;
         if (o instanceof java.sql.Date d) return d.toLocalDate();

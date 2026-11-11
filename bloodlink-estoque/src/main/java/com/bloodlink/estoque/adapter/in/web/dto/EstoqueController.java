@@ -1,4 +1,4 @@
-package com.bloodlink.estoque.adapter.in.web;
+package com.bloodlink.estoque.adapter.in.web.dto;
 
 import com.bloodlink.estoque.adapter.in.web.dto.BaixaRequest;
 import com.bloodlink.estoque.adapter.in.web.dto.BaixaResponse;

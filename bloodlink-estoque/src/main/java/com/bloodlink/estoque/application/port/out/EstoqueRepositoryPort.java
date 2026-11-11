@@ -24,6 +24,8 @@ public interface EstoqueRepositoryPort {
 
     boolean atualizarParametros(TipoSanguineo tipo, int limiarCritico, int metaUnidades);
 
+    int limiarCritico(TipoSanguineo tipo);
+
     record LoteDisponivel(UUID id, int quantidade) {
     }
 }
