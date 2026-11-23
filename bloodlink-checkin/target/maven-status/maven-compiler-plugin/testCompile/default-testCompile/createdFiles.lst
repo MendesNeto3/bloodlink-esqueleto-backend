@@ -1,0 +1,3 @@
+com\bloodlink\checkin\domain\DominioCheckinTest.class
+com\bloodlink\checkin\application\service\CheckinServiceTest.class
+com\bloodlink\checkin\adapter\in\web\CheckinControllerTest.class

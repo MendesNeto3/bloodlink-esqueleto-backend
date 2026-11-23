@@ -27,13 +27,6 @@ public record Checkin(UUID id,
                 resultado, observacao, agora, triadoPor);
     }
 
-    public SituacaoCheckin situacao() {
-        if (triagem == null) {
-            return SituacaoCheckin.AGUARDANDO_TRIAGEM;
-        }
-        return triagem == ResultadoTriagem.APTA ? SituacaoCheckin.APTO : SituacaoCheckin.INAPTO;
-    }
-
     /** A observação da triagem é dado de saúde (LGPD): nunca vai para log. */
     @Override
     public String toString() {

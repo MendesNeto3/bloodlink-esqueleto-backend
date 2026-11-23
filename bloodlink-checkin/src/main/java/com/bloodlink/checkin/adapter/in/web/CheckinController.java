@@ -5,6 +5,7 @@ import com.bloodlink.checkin.adapter.in.web.dto.FilaResponse;
 import com.bloodlink.checkin.adapter.in.web.dto.RegistrarChegadaRequest;
 import com.bloodlink.checkin.adapter.in.web.dto.TriagemRequest;
 import com.bloodlink.checkin.application.port.in.CheckinUseCase;
+import com.bloodlink.checkin.domain.DetalheCheckin;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -37,32 +38,32 @@ public class CheckinController {
         if (request == null) {
             throw new IllegalArgumentException("O corpo da requisição é obrigatório");
         }
-        var checkin = checkinUseCase.registrarChegada(request.agendamentoId(), usuarioId(autenticacao));
-        return ResponseEntity.created(URI.create("/api/checkin/" + checkin.id()))
-                .body(CheckinResponse.de(checkin));
+        DetalheCheckin detalhe = checkinUseCase.registrarChegada(request.agendamentoId(), usuarioId(autenticacao));
+        return ResponseEntity.created(URI.create("/api/checkin/" + detalhe.checkin().id()))
+                .body(CheckinResponse.de(detalhe));
     }
 
     @GetMapping
-    public FilaResponse fila(@RequestParam(required = false)
-                             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
-                             @RequestParam(required = false) String situacao) {
-        return FilaResponse.de(checkinUseCase.fila(data, situacao));
+    public ResponseEntity<FilaResponse> fila(@RequestParam(required = false)
+                                             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
+                                             @RequestParam(required = false) String situacao) {
+        return ResponseEntity.ok(FilaResponse.de(checkinUseCase.fila(data, situacao)));
     }
 
     @GetMapping("/{id}")
-    public CheckinResponse buscar(@PathVariable UUID id) {
-        return CheckinResponse.de(checkinUseCase.buscar(id));
+    public ResponseEntity<CheckinResponse> buscar(@PathVariable UUID id) {
+        return ResponseEntity.ok(CheckinResponse.de(checkinUseCase.buscar(id)));
     }
 
     @PatchMapping("/{id}/triagem")
-    public CheckinResponse registrarTriagem(@PathVariable UUID id,
-                                            @RequestBody TriagemRequest request,
-                                            Authentication autenticacao) {
+    public ResponseEntity<CheckinResponse> registrarTriagem(@PathVariable UUID id,
+                                                            @RequestBody TriagemRequest request,
+                                                            Authentication autenticacao) {
         if (request == null) {
             throw new IllegalArgumentException("O corpo da requisição é obrigatório");
         }
-        return CheckinResponse.de(checkinUseCase.registrarTriagem(
-                id, request.resultado(), request.observacao(), usuarioId(autenticacao)));
+        return ResponseEntity.ok(CheckinResponse.de(checkinUseCase.registrarTriagem(
+                id, request.resultado(), request.observacao(), usuarioId(autenticacao))));
     }
 
     /** O nome da autenticação é o subject do token, que é o id do usuário. */

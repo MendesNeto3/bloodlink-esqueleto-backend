@@ -8,6 +8,7 @@ import com.bloodlink.checkin.application.port.in.CheckinUseCase;
 import com.bloodlink.checkin.application.port.out.CheckinRepositoryPort;
 import com.bloodlink.checkin.domain.AgendamentoParaCheckin;
 import com.bloodlink.checkin.domain.Checkin;
+import com.bloodlink.checkin.domain.DetalheCheckin;
 import com.bloodlink.checkin.domain.ItemFila;
 import com.bloodlink.checkin.domain.ResultadoTriagem;
 import com.bloodlink.checkin.domain.ResumoFila;
@@ -43,7 +44,7 @@ public class CheckinService implements CheckinUseCase {
 
     @Override
     @Transactional
-    public Checkin registrarChegada(UUID agendamentoId, UUID registradoPor) {
+    public DetalheCheckin registrarChegada(UUID agendamentoId, UUID registradoPor) {
         exigir(agendamentoId, "O id do agendamento é obrigatório");
         exigir(registradoPor, "Não foi possível identificar quem registrou a chegada");
         return executar("registrar o check-in", () -> {
@@ -60,13 +61,13 @@ public class CheckinService implements CheckinUseCase {
                 throw new ConflitoException("O check-in deste agendamento já foi registrado");
             }
             log.info("Check-in {} registrado para o agendamento {}", novo.id(), agendamento.id());
-            return novo;
+            return new DetalheCheckin(novo, SituacaoCheckin.de(agendamento.status(), true, null));
         });
     }
 
     @Override
     @Transactional
-    public Checkin registrarTriagem(UUID checkinId, String resultado, String observacao, UUID triadoPor) {
+    public DetalheCheckin registrarTriagem(UUID checkinId, String resultado, String observacao, UUID triadoPor) {
         exigir(checkinId, "O id do check-in é obrigatório");
         exigir(triadoPor, "Não foi possível identificar quem registrou a triagem");
         ResultadoTriagem parecer = ResultadoTriagem.de(resultado);
@@ -97,15 +98,15 @@ public class CheckinService implements CheckinUseCase {
                 throw new ConflitoException("A triagem deste check-in já foi registrada");
             }
             log.info("Triagem do check-in {} registrada: {}", triado.id(), parecer);
-            return triado;
+            return new DetalheCheckin(triado, SituacaoCheckin.de(agendamento.status(), true, parecer));
         });
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Checkin buscar(UUID id) {
+    public DetalheCheckin buscar(UUID id) {
         exigir(id, "O id do check-in é obrigatório");
-        return executar("consultar o check-in", () -> checkins.buscarPorId(id)
+        return executar("consultar o check-in", () -> checkins.buscarDetalhePorId(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Check-in não encontrado")));
     }
 

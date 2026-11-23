@@ -2,6 +2,7 @@ package com.bloodlink.checkin.application.port.out;
 
 import com.bloodlink.checkin.domain.AgendamentoParaCheckin;
 import com.bloodlink.checkin.domain.Checkin;
+import com.bloodlink.checkin.domain.DetalheCheckin;
 import com.bloodlink.checkin.domain.ItemFila;
 
 import java.time.LocalDate;
@@ -17,7 +18,8 @@ public interface CheckinRepositoryPort {
     /** false se o agendamento já tem check-in (garantido pelo banco, mesmo com duas chamadas ao mesmo tempo). */
     boolean inserir(Checkin checkin);
 
-    Optional<Checkin> buscarPorId(UUID id);
+    /** O check-in com a situação já calculada a partir do status atual do agendamento. */
+    Optional<DetalheCheckin> buscarDetalhePorId(UUID id);
 
     /** Trava a linha do check-in (for update) enquanto a transação durar. */
     Optional<Checkin> buscarPorIdParaAtualizar(UUID id);

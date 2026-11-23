@@ -3,6 +3,7 @@ package com.bloodlink.checkin.adapter.out.persistence;
 import com.bloodlink.checkin.application.port.out.CheckinRepositoryPort;
 import com.bloodlink.checkin.domain.AgendamentoParaCheckin;
 import com.bloodlink.checkin.domain.Checkin;
+import com.bloodlink.checkin.domain.DetalheCheckin;
 import com.bloodlink.checkin.domain.ItemFila;
 import com.bloodlink.checkin.domain.ResultadoTriagem;
 import com.bloodlink.checkin.domain.SituacaoCheckin;
@@ -24,7 +25,7 @@ import java.util.UUID;
 @Component
 public class CheckinRepositoryAdapter implements CheckinRepositoryPort {
 
-    private static final String COLUNAS_CHECKIN = """
+    private static final String SELECT_CHECKIN = """
             select id, agendamento_id, doador_id, chegada_em, registrado_por,
                    triagem_resultado, triagem_observacao, triagem_em, triagem_por
               from checkin
@@ -64,13 +65,34 @@ public class CheckinRepositoryAdapter implements CheckinRepositoryPort {
     }
 
     @Override
-    public Optional<Checkin> buscarPorId(UUID id) {
-        return buscarCheckin(COLUNAS_CHECKIN, id);
+    public Optional<DetalheCheckin> buscarDetalhePorId(UUID id) {
+        List<?> linhas = em.createNativeQuery("""
+                        select c.id, c.agendamento_id, c.doador_id, c.chegada_em, c.registrado_por,
+                               c.triagem_resultado, c.triagem_observacao, c.triagem_em, c.triagem_por,
+                               a.status
+                          from checkin c
+                          join agendamento a on a.id = c.agendamento_id
+                         where c.id = :id
+                        """)
+                .setParameter("id", id)
+                .getResultList();
+        if (linhas.isEmpty()) {
+            return Optional.empty();
+        }
+        Object[] c = (Object[]) linhas.get(0);
+        Checkin checkin = checkin(c);
+        return Optional.of(new DetalheCheckin(checkin, SituacaoCheckin.de((String) c[9], true, checkin.triagem())));
     }
 
     @Override
     public Optional<Checkin> buscarPorIdParaAtualizar(UUID id) {
-        return buscarCheckin(COLUNAS_CHECKIN + " for update", id);
+        List<?> linhas = em.createNativeQuery(SELECT_CHECKIN + " for update")
+                .setParameter("id", id)
+                .getResultList();
+        if (linhas.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(checkin((Object[]) linhas.get(0)));
     }
 
     @Override
@@ -117,15 +139,11 @@ public class CheckinRepositoryAdapter implements CheckinRepositoryPort {
         }).toList();
     }
 
-    private Optional<Checkin> buscarCheckin(String sql, UUID id) {
-        List<?> linhas = em.createNativeQuery(sql).setParameter("id", id).getResultList();
-        if (linhas.isEmpty()) {
-            return Optional.empty();
-        }
-        Object[] c = (Object[]) linhas.get(0);
-        return Optional.of(new Checkin(uuid(c[0]), uuid(c[1]), uuid(c[2]), instante(c[3]), uuid(c[4]),
+    /** Lê as 9 primeiras colunas do check-in. */
+    private static Checkin checkin(Object[] c) {
+        return new Checkin(uuid(c[0]), uuid(c[1]), uuid(c[2]), instante(c[3]), uuid(c[4]),
                 c[5] == null ? null : ResultadoTriagem.valueOf((String) c[5]),
-                (String) c[6], instante(c[7]), uuid(c[8])));
+                (String) c[6], instante(c[7]), uuid(c[8]));
     }
 
     private static OffsetDateTime utc(Instant instante) {
