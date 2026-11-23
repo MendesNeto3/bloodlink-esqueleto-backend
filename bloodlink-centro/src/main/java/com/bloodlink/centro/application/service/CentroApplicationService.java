@@ -7,11 +7,15 @@ import com.bloodlink.centro.domain.Centro;
 
 import com.bloodlink.centro.domain.CentroComDistancia;
 import com.bloodlink.centro.domain.PerfilCentro;
+import com.bloodlink.common.cache.CacheJson;
+import com.bloodlink.common.cache.ChavesCache;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.text.Normalizer;
+import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -28,13 +32,21 @@ public class CentroApplicationService implements CentroUseCase {
     private static final int BUSCA_TAMANHO_MAXIMO = 100;
     private static final Pattern FORMATO_CENTRO_ID = Pattern.compile("^[a-f0-9]{12}$");
 
+    /** A lista de centros ativos é lida a cada consulta pública e muda raramente: fica 5 min no Redis. */
+    private static final String CHAVE_ATIVOS = "bloodlink:centros:ativos";
+    private static final Duration VALIDADE_ATIVOS = Duration.ofMinutes(5);
+    private static final TypeReference<List<Centro>> TIPO_LISTA_CENTROS = new TypeReference<List<Centro>>() { };
+
     private final CentroRepositoryPort centroRepositoryPort;
     private final SchemaProvisionerGateway schemaProvisionerGateway;
+    private final CacheJson cache;
 
     public CentroApplicationService(CentroRepositoryPort centroRepositoryPort,
-                                    SchemaProvisionerGateway schemaProvisionerGateway) {
+                                    SchemaProvisionerGateway schemaProvisionerGateway,
+                                    CacheJson cache) {
         this.centroRepositoryPort = centroRepositoryPort;
         this.schemaProvisionerGateway = schemaProvisionerGateway;
+        this.cache = cache;
     }
 
     @Override
@@ -47,6 +59,7 @@ public class CentroApplicationService implements CentroUseCase {
         Centro centroNovo = new Centro(null, nomeValidado, schema, true,
                 perfil == null ? PerfilCentro.vazio() : perfil);
         Centro centroSalvo = centroRepositoryPort.salvar(centroNovo);
+        cache.apagar(CHAVE_ATIVOS);
 
         log.info("Centro registrado: id={}, nome={}", centroSalvo.id(), centroSalvo.nome());
         log.debug("Centro {} provisionado no schema {}", centroSalvo.id(), schema);
@@ -63,9 +76,10 @@ public class CentroApplicationService implements CentroUseCase {
 
     @Override
     public List<Centro> listarAtivos() {
-        return centroRepositoryPort.listarTodos().stream()
-                .filter(Centro::ativo)
-                .toList();
+        return cache.obterOu(CHAVE_ATIVOS, VALIDADE_ATIVOS, TIPO_LISTA_CENTROS, () ->
+                centroRepositoryPort.listarTodos().stream()
+                        .filter(Centro::ativo)
+                        .toList());
     }
 
     @Override
@@ -114,7 +128,10 @@ public class CentroApplicationService implements CentroUseCase {
         log.info("Nome do centro atualizado: id={}, nomeAntigo={}, nomeNovo={}",
                 centroAtual.id(), centroAtual.nome(), centroAtualizado.nome());
 
-        return centroRepositoryPort.salvar(centroAtualizado);
+        Centro salvo = centroRepositoryPort.salvar(centroAtualizado);
+        // a lista pública e o nome que a API guarda para os e-mails ficam desatualizados com o novo nome
+        cache.apagar(CHAVE_ATIVOS, ChavesCache.nomeCentro(salvo.centroId()));
+        return salvo;
     }
 
     /** Se o perfil enviado não trouxer a capacidade diária, a atual é mantida. */
@@ -131,7 +148,9 @@ public class CentroApplicationService implements CentroUseCase {
 
         log.info("Perfil do centro atualizado: id={}", centroAtual.id());
 
-        return centroRepositoryPort.salvar(centroAtual.comPerfil(novoPerfil));
+        Centro salvo = centroRepositoryPort.salvar(centroAtual.comPerfil(novoPerfil));
+        cache.apagar(CHAVE_ATIVOS);
+        return salvo;
     }
 
     @Override
@@ -140,6 +159,7 @@ public class CentroApplicationService implements CentroUseCase {
                 .orElseThrow(CentroNaoEncontradoException::new);
 
         Centro centroDesativado = centroRepositoryPort.salvar(centroAtual.desativado());
+        cache.apagar(CHAVE_ATIVOS);
 
         log.info("Centro desativado: id={}, nome={}", centroDesativado.id(), centroDesativado.nome());
 

@@ -1,6 +1,6 @@
 package com.bloodlink.api.agendamento.adapter.out.persistence;
 
-import com.bloodlink.api.agendamento.domain.StatusAgendamento;
+import com.bloodlink.api.agendamento.domain.enums.StatusAgendamento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;

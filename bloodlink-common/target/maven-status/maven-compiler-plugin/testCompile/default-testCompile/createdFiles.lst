@@ -1,0 +1,8 @@
+com\bloodlink\common\seguranca\JwtSupportTest.class
+com\bloodlink\common\cache\CacheJsonTest$1.class
+com\bloodlink\common\cache\CacheJsonTest.class
+com\bloodlink\common\log\MascaraLogTest.class
+com\bloodlink\common\seguranca\TenantIdsTest.class
+com\bloodlink\common\cache\ChavesCacheTest.class
+com\bloodlink\common\seguranca\JwtAuthenticationFilterTest.class
+com\bloodlink\common\correlation\ContextosTest.class

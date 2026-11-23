@@ -1,13 +1,18 @@
 com\bloodlink\centro\application\service\DistanciaGeografica.class
+com\bloodlink\centro\adapter\in\web\dto\CentroInternoResponse.class
 com\bloodlink\centro\application\service\CentroNaoEncontradoException.class
 com\bloodlink\centro\config\RabbitConfig.class
+com\bloodlink\centro\adapter\in\web\CentroInternoController.class
 com\bloodlink\centro\application\service\CentroApplicationService.class
 com\bloodlink\centro\application\port\in\CentroUseCase.class
 com\bloodlink\centro\config\CorrelationIdFilter.class
 com\bloodlink\centro\BloodlinkCentroApplication.class
+com\bloodlink\centro\application\service\CentroApplicationService$1.class
 com\bloodlink\centro\adapter\in\web\dto\AtualizarPerfilCentroRequest.class
 com\bloodlink\centro\adapter\in\web\dto\AtualizarNomeCentroRequest.class
+com\bloodlink\centro\config\CacheConfig.class
 com\bloodlink\centro\application\port\out\SchemaProvisionerGateway.class
+com\bloodlink\centro\application\service\ChaveDeServicoInvalidaException.class
 com\bloodlink\centro\adapter\in\web\CentroController.class
 com\bloodlink\centro\adapter\in\web\dto\RegistrarCentroRequest.class
 com\bloodlink\centro\adapter\out\messaging\RabbitCentroEventPublisherAdapter.class
@@ -25,6 +30,7 @@ com\bloodlink\centro\application\port\out\CentroRepositoryPort.class
 com\bloodlink\centro\adapter\out\persistence\CentroJpaRepository.class
 com\bloodlink\centro\domain\CentroComDistancia.class
 com\bloodlink\centro\domain\TipoCentro.class
+com\bloodlink\centro\adapter\in\web\dto\CentroDetalheResponse.class
 com\bloodlink\centro\adapter\in\web\dto\CentroPublicoResponse.class
 com\bloodlink\centro\adapter\out\persistence\CentroRepositoryAdapter.class
 com\bloodlink\centro\config\SecurityConfig.class

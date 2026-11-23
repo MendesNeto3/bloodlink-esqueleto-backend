@@ -1,7 +1,10 @@
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\adapter\in\web\CentroController.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\adapter\in\web\CentroExceptionHandler.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\adapter\in\web\CentroInternoController.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\adapter\in\web\dto\AtualizarNomeCentroRequest.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\adapter\in\web\dto\AtualizarPerfilCentroRequest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\adapter\in\web\dto\CentroDetalheResponse.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\adapter\in\web\dto\CentroInternoResponse.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\adapter\in\web\dto\CentroPublicoResponse.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\adapter\in\web\dto\CentroResponse.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\adapter\in\web\dto\RegistrarCentroRequest.java
@@ -14,8 +17,10 @@ C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\j
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\application\port\out\SchemaProvisionerGateway.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\application\service\CentroApplicationService.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\application\service\CentroNaoEncontradoException.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\application\service\ChaveDeServicoInvalidaException.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\application\service\DistanciaGeografica.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\BloodlinkCentroApplication.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\config\CacheConfig.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\config\CorrelationIdFilter.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\config\ErrorResponse.java
 C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-centro\src\main\java\com\bloodlink\centro\config\JwtConfig.java

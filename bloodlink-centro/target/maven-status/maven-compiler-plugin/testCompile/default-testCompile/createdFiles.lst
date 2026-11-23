@@ -1,0 +1,5 @@
+com\bloodlink\centro\adapter\out\messaging\RabbitCentroEventPublisherAdapterTest.class
+com\bloodlink\centro\config\FiltrosCentroTest.class
+com\bloodlink\centro\adapter\in\web\CentroControllerTest.class
+com\bloodlink\centro\domain\DominioCentroTest.class
+com\bloodlink\centro\application\service\CentroApplicationServiceTest.class

@@ -1,12 +1,15 @@
+com\bloodlink\common\events\EstoqueCriticoEvent.class
 com\bloodlink\common\log\MascaraLog.class
 com\bloodlink\common\correlation\Papel.class
 com\bloodlink\common\seguranca\JwtSupport$DadosToken.class
-com\bloodlink\common\events\AgendamentoStatusAtualizadoEvent.class
 com\bloodlink\common\seguranca\JwtAuthenticationFilter.class
 com\bloodlink\common\events\AgendamentoConfirmadoEvent.class
+com\bloodlink\common\cache\CacheJson.class
 com\bloodlink\common\correlation\UserRoleContext.class
 com\bloodlink\common\seguranca\TenantIds.class
 com\bloodlink\common\seguranca\JwtAuthenticationFilter$CabecalhosConfiaveis.class
+com\bloodlink\common\cache\CacheJson$1.class
+com\bloodlink\common\cache\ChavesCache.class
 com\bloodlink\common\seguranca\JwtAuthenticationFilter$FabricaDePrincipal.class
 com\bloodlink\common\seguranca\JwtSupport.class
 com\bloodlink\common\events\CentroRegistradoEvent.class

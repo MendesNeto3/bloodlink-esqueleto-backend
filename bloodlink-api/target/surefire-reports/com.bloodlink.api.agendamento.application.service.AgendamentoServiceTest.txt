@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.bloodlink.api.agendamento.application.service.AgendamentoServiceTest
+-------------------------------------------------------------------------------
+Tests run: 28, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.452 s -- in com.bloodlink.api.agendamento.application.service.AgendamentoServiceTest
