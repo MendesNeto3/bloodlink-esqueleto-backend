@@ -1,10 +1,13 @@
 package com.bloodlink.api.agendamento.domain;
 
+import com.bloodlink.api.agendamento.domain.enums.OrigemAgendamento;
+import com.bloodlink.api.agendamento.domain.enums.StatusAgendamento;
 import com.bloodlink.auth.shared.exceptions.ConflitoException;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Locale;
 import java.util.UUID;
 
 public record Agendamento(UUID id,
@@ -59,6 +62,11 @@ public record Agendamento(UUID id,
         }
         return new Agendamento(id, doadorId, date, hora, StatusAgendamento.FALTOU, origem, observacao,
                 motivoCancelamento, solicitadoPor, null, criadoEm, agora);
+    }
+
+    /** Código curto para leitura na recepção (ex.: AG-7F3A2C91). Deriva do id: não precisa de coluna nem migration. */
+    public String codigo() {
+        return "AG-" + id.toString().substring(0, 8).toUpperCase(Locale.ROOT);
     }
 
     @Override

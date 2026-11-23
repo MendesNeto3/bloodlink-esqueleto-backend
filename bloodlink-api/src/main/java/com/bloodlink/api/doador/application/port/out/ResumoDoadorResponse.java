@@ -11,6 +11,7 @@ public record ResumoDoadorResponse(UUID doadorId,
                                    String uf,
                                    String tipoSanguineo,
                                    String centroId,
+                                   String centroNome,
                                    Solicitacoes solicitacoes,
                                    Doacoes doacoes,
                                    Documentos documentos,
@@ -28,7 +29,7 @@ public record ResumoDoadorResponse(UUID doadorId,
     public record Documentos(int total) {
     }
 
-    public static ResumoDoadorResponse de(ResumoDoador resumo, String centroId) {
+    public static ResumoDoadorResponse de(ResumoDoador resumo, String centroId, String centroNome) {
         Doador d = resumo.doador();
         Agendamento ag = resumo.agendamentoAtivo();
         Solicitacoes solicitacoes = ag == null
@@ -42,9 +43,10 @@ public record ResumoDoadorResponse(UUID doadorId,
                 d.uf(),
                 d.tipoSanguineo() == null ? null : d.tipoSanguineo().name(),
                 centroId,
+                centroNome,
                 solicitacoes,
                 new Doacoes(resumo.totalDoacoes(), resumo.ultimaDoacao()),
-                new Documentos(0),              // até os documentos existirem
+                new Documentos(resumo.totalDocumentos()),
                 ElegibilidadeResponse.de(resumo.elegibilidade()));
     }
 }

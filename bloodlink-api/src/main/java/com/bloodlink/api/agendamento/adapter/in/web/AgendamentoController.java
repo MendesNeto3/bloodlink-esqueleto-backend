@@ -3,7 +3,11 @@ package com.bloodlink.api.agendamento.adapter.in.web;
 import com.bloodlink.api.agendamento.adapter.in.web.dto.*;
 import com.bloodlink.api.agendamento.application.usecase.AgendamentoUseCase;
 import com.bloodlink.api.agendamento.application.usecase.ConsultarHorarioUseCase;
+import com.bloodlink.api.agendamento.application.port.out.CentroConsultaPort;
+import com.bloodlink.api.agendamento.application.usecase.LembreteDoacaoUseCase;
 import com.bloodlink.api.agendamento.domain.*;
+import com.bloodlink.api.agendamento.domain.enums.OrigemAgendamento;
+import com.bloodlink.api.agendamento.domain.enums.StatusAgendamento;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,8 +24,13 @@ public class AgendamentoController {
 
     private final AgendamentoUseCase agendamentoUseCase;
     private final ConsultarHorarioUseCase horarioUseCase;
+    private final LembreteDoacaoUseCase lembreteUseCase;
+    private final CentroConsultaPort centros;
 
-    public AgendamentoController(AgendamentoUseCase agendamentoUseCase, ConsultarHorarioUseCase horarioUseCase) {
+    public AgendamentoController(AgendamentoUseCase agendamentoUseCase, ConsultarHorarioUseCase horarioUseCase,
+                                 LembreteDoacaoUseCase lembreteUseCase, CentroConsultaPort centros) {
+        this.centros = centros;
+        this.lembreteUseCase = lembreteUseCase;
         this.agendamentoUseCase = agendamentoUseCase;
         this.horarioUseCase = horarioUseCase;
     }
@@ -33,9 +42,10 @@ public class AgendamentoController {
             @RequestParam(required = false) StatusAgendamento status,
             @RequestParam(required = false) UUID doadorId,
             @RequestParam(defaultValue = "100") int limite) {
+        String centroNome = centros.nomeDoCentroAtual();
         return ResponseEntity.ok(agendamentoUseCase
                 .listarAgenda(new FiltroAgendamento(de, ate, status, doadorId), limite)
-                .stream().map(AgendaAgendamentoResponse::de).toList());
+                .stream().map(item -> AgendaAgendamentoResponse.de(item, centroNome)).toList());
     }
 
     @GetMapping("/horarios")
@@ -60,6 +70,12 @@ public class AgendamentoController {
                 OrigemAgendamento.EQUIPE, usuarioId(autenticacao)));
         return ResponseEntity.created(URI.create("/api/agendamentos/" + criado.id()))
                 .body(AgendamentoResponse.de(criado));
+    }
+
+    /** Dispara o lembrete de hoje agora (o job já roda todo dia de manhã). Só reenvia o que ainda está pendente. */
+    @PostMapping("/lembretes")
+    public ResponseEntity<LembretesResponse> enviarLembretes() {
+        return ResponseEntity.ok(LembretesResponse.de(lembreteUseCase.enviarLembretesDeHoje()));
     }
 
     @PatchMapping("/{id}/confirmar")

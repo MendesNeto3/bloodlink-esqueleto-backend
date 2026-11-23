@@ -9,5 +9,6 @@ public record ResumoDoador(Doador doador,
                            int totalDoacoes,
                            LocalDate ultimaDoacao,
                            ResultadoElegibilidade elegibilidade,
-                           Agendamento agendamentoAtivo) {
+                           Agendamento agendamentoAtivo,
+                           int totalDocumentos) {
 }

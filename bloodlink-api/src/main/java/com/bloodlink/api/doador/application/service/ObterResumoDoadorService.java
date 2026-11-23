@@ -8,6 +8,7 @@ import com.bloodlink.api.doador.application.port.in.ObterResumoDoadorUseCase;
 import com.bloodlink.api.doador.application.port.out.ResumoDoador;
 import com.bloodlink.api.doador.domain.Doacao;
 import com.bloodlink.api.doador.domain.Doador;
+import com.bloodlink.api.documento.application.port.out.DocumentoRepositoryPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,15 +25,18 @@ public class ObterResumoDoadorService implements ObterResumoDoadorUseCase {
     private final DoacaoUseCase doacaoUseCase;
     private final ConsultarElegibilidadeUseCase elegibilidadeUseCase;
     private final AgendamentoUseCase agendamentoUseCase;
+    private final DocumentoRepositoryPort documentos;
 
     public ObterResumoDoadorService(ConsultarDoadorUseCase consultarDoadorUseCase,
                                     DoacaoUseCase doacaoUseCase,
                                     ConsultarElegibilidadeUseCase elegibilidadeUseCase,
-                                    AgendamentoUseCase agendamentoUseCase) {
+                                    AgendamentoUseCase agendamentoUseCase,
+                                    DocumentoRepositoryPort documentos) {
         this.consultarDoadorUseCase = consultarDoadorUseCase;
         this.doacaoUseCase = doacaoUseCase;
         this.elegibilidadeUseCase = elegibilidadeUseCase;
         this.agendamentoUseCase = agendamentoUseCase;
+        this.documentos = documentos;
     }
 
     @Override
@@ -53,7 +57,8 @@ public class ObterResumoDoadorService implements ObterResumoDoadorUseCase {
 
         return new ResumoDoador(doador, historico.size(), ultima,
                 elegibilidadeUseCase.consultar(doadorId),
-                agendamentoUseCase.ativoDoDoador(doadorId).orElse(null));
+                agendamentoUseCase.ativoDoDoador(doadorId).orElse(null),
+                (int) Math.min(documentos.contarPorDoador(doadorId), Integer.MAX_VALUE));
     }
 
     private static LocalDate maisRecente(LocalDate a, LocalDate b) {

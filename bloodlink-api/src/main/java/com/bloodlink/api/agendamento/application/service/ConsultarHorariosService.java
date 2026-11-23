@@ -1,13 +1,13 @@
 package com.bloodlink.api.agendamento.application.service;
 
-import com.bloodlink.api.agendamento.application.port.in.AgendamentoRepositoryPort;
+import com.bloodlink.api.agendamento.application.port.out.AgendamentoRepositoryPort;
 import com.bloodlink.api.agendamento.application.usecase.ConsultarHorarioUseCase;
 import com.bloodlink.api.agendamento.domain.HorarioComVagas;
 import com.bloodlink.api.agendamento.domain.HorarioDisponivel;
 import com.bloodlink.api.agendamento.domain.HorariosDaEquipe;
 import com.bloodlink.api.agendamento.domain.HorariosDoDia;
 import com.bloodlink.api.doador.doadorException.OperacaoDoadorException;
-import com.bloodlink.api.shared.log.MascaraLog;
+import com.bloodlink.common.log.MascaraLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

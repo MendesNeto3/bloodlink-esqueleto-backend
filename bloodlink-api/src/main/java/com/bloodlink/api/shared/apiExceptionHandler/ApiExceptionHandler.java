@@ -1,6 +1,6 @@
 package com.bloodlink.api.shared.apiExceptionHandler;
 
-import com.bloodlink.api.shared.log.MascaraLog;
+import com.bloodlink.common.log.MascaraLog;
 import com.bloodlink.api.shared.tenant.exception.FalhaInternaException;
 import com.bloodlink.auth.shared.exceptions.ConflitoException;
 import com.bloodlink.auth.shared.exceptions.RecursoNaoEncontradoException;
@@ -16,7 +16,9 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
@@ -94,6 +96,16 @@ public class ApiExceptionHandler {
                 MascaraLog.uri(request.getRequestURI()), MascaraLog.causa(e.getCause()));
         log.debug("Detalhe da falha interna", e);
         return resposta(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), request);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, Object>> arquivoGrande(HttpServletRequest request) {
+        return resposta(HttpStatus.PAYLOAD_TOO_LARGE, "O arquivo deve ter no máximo 10 MB", request);
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<Map<String, Object>> tipoDeConteudoNaoSuportado(HttpServletRequest request) {
+        return resposta(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Tipo de conteúdo não suportado para esta rota", request);
     }
 
     @ExceptionHandler(Exception.class)

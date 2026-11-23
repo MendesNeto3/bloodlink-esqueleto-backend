@@ -1,9 +1,14 @@
 package com.bloodlink.api.agendamento.application.service;
 
 import com.bloodlink.api.agendamento.adapter.in.web.dto.AgendamentoComDoador;
-import com.bloodlink.api.agendamento.application.port.in.AgendamentoRepositoryPort;
+import com.bloodlink.api.agendamento.application.port.out.AgendamentoRepositoryPort;
+import com.bloodlink.api.agendamento.application.port.out.AgendamentoEventosPort;
+import com.bloodlink.api.agendamento.application.port.out.AgendamentoEventosPort.DadosAgendamentoEvento;
+import com.bloodlink.api.agendamento.application.port.out.CentroConsultaPort;
 import com.bloodlink.api.agendamento.application.usecase.AgendamentoUseCase;
 import com.bloodlink.api.agendamento.domain.*;
+import com.bloodlink.api.agendamento.domain.enums.OrigemAgendamento;
+import com.bloodlink.api.agendamento.domain.enums.StatusAgendamento;
 import com.bloodlink.api.doador.adapter.out.persistence.DoacaoRepositoryPort;
 import com.bloodlink.api.doador.adapter.out.persistence.ImpedimentoRepositoryPort;
 import com.bloodlink.api.doador.application.port.in.DoacaoUseCase;
@@ -15,7 +20,7 @@ import com.bloodlink.api.doador.application.service.AvaliadorElegibilidade;
 import com.bloodlink.api.doador.doadorException.OperacaoDoadorException;
 import com.bloodlink.api.doador.domain.Doador;
 import com.bloodlink.api.doador.domain.StatusElegibilidade;
-import com.bloodlink.api.shared.log.MascaraLog;
+import com.bloodlink.common.log.MascaraLog;
 import com.bloodlink.auth.shared.exceptions.ConflitoException;
 import com.bloodlink.auth.shared.exceptions.RecursoNaoEncontradoException;
 import com.bloodlink.auth.shared.exceptions.RegraDeNegocioException;
@@ -26,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -51,6 +57,8 @@ public class AgendamentoService implements AgendamentoUseCase {
     private final DoacaoUseCase doacaoUseCase;
     private final AvaliadorElegibilidade avaliador;
     private final ConfiguracaoAgendamento configuracao;
+    private final AgendamentoEventosPort eventos;
+    private final CentroConsultaPort centros;
     private final Clock clock;
 
     public AgendamentoService(AgendamentoRepositoryPort agendamentos,
@@ -60,6 +68,8 @@ public class AgendamentoService implements AgendamentoUseCase {
                               DoacaoUseCase doacaoUseCase,
                               AvaliadorElegibilidade avaliador,
                               ConfiguracaoAgendamento configuracao,
+                              AgendamentoEventosPort eventos,
+                              CentroConsultaPort centros,
                               Clock clock) {
         this.agendamentos = agendamentos;
         this.doadores = doadores;
@@ -68,6 +78,8 @@ public class AgendamentoService implements AgendamentoUseCase {
         this.doacaoUseCase = doacaoUseCase;
         this.avaliador = avaliador;
         this.configuracao = configuracao;
+        this.eventos = eventos;
+        this.centros = centros;
         this.clock = clock;
     }
 
@@ -91,7 +103,8 @@ public class AgendamentoService implements AgendamentoUseCase {
             configuracao.validarDataParaEquipe(comando.data());
         } else {
             configuracao.validarData(comando.data());
-        }        if (!configuracao.atende(comando.data())) {
+        }
+        if (!configuracao.atende(comando.data())) {
             throw new IllegalArgumentException("O hemocentro não atende neste dia da semana");
         }
         if (!configuracao.horarios().contains(hora)) {
@@ -181,8 +194,24 @@ public class AgendamentoService implements AgendamentoUseCase {
         return executar("confirmar o agendamento", agendamentoId, () -> {
             Agendamento confirmado = agendamentos.salvar(buscarOuFalhar(agendamentoId).confirmar(clock.instant()));
             log.info("Agendamento {} confirmado", confirmado.id());
+            avisarConfirmacao(confirmado);
             return confirmado;
         });
+    }
+
+    /** Aviso por e-mail é complementar: qualquer falha aqui não pode desfazer a confirmação já gravada. */
+    private void avisarConfirmacao(Agendamento confirmado) {
+        try {
+            Doador doador = doadores.buscarPorId(confirmado.doadorId()).orElse(null);
+            if (doador == null || doador.email() == null || doador.email().isBlank()) {
+                log.info("Agendamento {} confirmado sem e-mail do doador: aviso não enviado", confirmado.id());
+                return;
+            }
+            eventos.confirmado(new DadosAgendamentoEvento(confirmado.id(), doador.id(), doador.nome(), doador.email(),
+                    centros.nomeDoCentroAtual(), LocalDateTime.of(confirmado.date(), confirmado.hora())));
+        } catch (RuntimeException e) {
+            log.warn("Aviso de confirmação do agendamento {} não enviado - causa: {}", confirmado.id(), MascaraLog.causa(e));
+        }
     }
 
     @Override

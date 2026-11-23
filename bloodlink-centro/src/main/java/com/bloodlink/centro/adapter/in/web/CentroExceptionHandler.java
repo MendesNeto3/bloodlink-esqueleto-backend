@@ -1,6 +1,7 @@
 package com.bloodlink.centro.adapter.in.web;
 
 import com.bloodlink.centro.application.service.CentroNaoEncontradoException;
+import com.bloodlink.centro.application.service.ChaveDeServicoInvalidaException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,13 @@ import java.util.stream.Collectors;
     public ResponseEntity<Map<String, Object>> handleCentroNaoEncontrado(
             CentroNaoEncontradoException ex, HttpServletRequest request) {
         return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+    }
+
+    // rota interna chamada sem a chave de serviço (ou com a errada)
+    @ExceptionHandler(ChaveDeServicoInvalidaException.class)
+    public ResponseEntity<Map<String, Object>> handleChaveInvalida(
+            ChaveDeServicoInvalidaException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.FORBIDDEN, ex.getMessage(), request);
     }
 
     // regras de validação do próprio domínio (nome, perfil, coordenadas); as mensagens são nossas

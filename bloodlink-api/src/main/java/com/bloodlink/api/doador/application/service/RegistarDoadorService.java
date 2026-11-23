@@ -57,7 +57,8 @@ public class RegistarDoadorService implements RegistrarDoadorUseCase {
         String cpf = ValidacoesDoador.validarCpf(comando.cpf());
         LocalDate nascimento = ValidacoesDoador.validarNascimento(comando.dataNascimento());
         SexoBiologico sexo = ConversorEnum.obrigatorio(SexoBiologico.class, "sexo", comando.sexo());
-        TipoSanguineo tipo = ConversorEnum.obrigatorio(TipoSanguineo.class, "tipoSanguineo", comando.tipoSanguineo());
+        TipoSanguineo tipo = TipoSanguineo.de(comando.tipoSanguineo())
+                .orElseThrow(() -> new IllegalArgumentException("Tipo sanguíneo inválido: use A+, A-, B+, B-, AB+, AB-, O+ ou O-"));
         BigDecimal peso = ValidacoesDoador.validarPeso(comando.pesoKg());
         String telefone = ValidacoesDoador.validarTelefone(comando.telefone());
         String email = ValidacoesDoador.validarEmail(comando.email());

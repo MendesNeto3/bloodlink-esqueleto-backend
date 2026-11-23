@@ -9,11 +9,17 @@ import java.util.List;
 import java.util.UUID;
 
 public record PainelResumo(LocalDate hoje,
+                           String centroNome,
                            Doacoes doacoes,
                            Doadores doadores,
                            Agendamentos agendamentos,
                            Coletas coletas,
                            List<DoadorResumo> doadoresRecentes) {
+
+    /** O serviço monta o painel sem o nome; o controller coloca depois (fora da transação e do cache de 60 s). */
+    public PainelResumo comCentro(String nome) {
+        return new PainelResumo(hoje, nome, doacoes, doadores, agendamentos, coletas, doadoresRecentes);
+    }
 
     public record Doacoes(long hoje, long ultimos7Dias, long anteriores7Dias,
                           Double variacaoPercentual, long mes) {
@@ -22,7 +28,7 @@ public record PainelResumo(LocalDate hoje,
     public record Doadores(long ativos, long recorrentes) {
     }
 
-    public record Agendamentos(long proximos7Dias, long confirmadosHoje, long pendentes) {
+    public record Agendamentos(long proximos7Dias, long confirmadosHoje, long pendentes, long ativosHoje) {
     }
 
     public record Coletas(YearMonth mes, List<Integer> diasComColeta, List<ProximaColeta> proximas) {

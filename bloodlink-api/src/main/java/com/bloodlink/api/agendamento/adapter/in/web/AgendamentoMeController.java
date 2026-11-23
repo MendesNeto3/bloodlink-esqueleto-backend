@@ -4,10 +4,11 @@ import com.bloodlink.api.agendamento.adapter.in.web.dto.AgendamentoResponse;
 import com.bloodlink.api.agendamento.adapter.in.web.dto.CancelarAgendamentoRequest;
 import com.bloodlink.api.agendamento.adapter.in.web.dto.HorariosResponse;
 import com.bloodlink.api.agendamento.adapter.in.web.dto.SolicitarAgendamentoRequest;
+import com.bloodlink.api.agendamento.application.port.out.CentroConsultaPort;
 import com.bloodlink.api.agendamento.application.usecase.AgendamentoUseCase;
 import com.bloodlink.api.agendamento.application.usecase.ConsultarHorarioUseCase;
 import com.bloodlink.api.agendamento.domain.Agendamento;
-import com.bloodlink.api.agendamento.domain.OrigemAgendamento;
+import com.bloodlink.api.agendamento.domain.enums.OrigemAgendamento;
 import com.bloodlink.api.agendamento.domain.SolicitarAgendamentoComando;
 import com.bloodlink.common.seguranca.JwtAuthenticationFilter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -25,9 +26,12 @@ public class AgendamentoMeController {
 
     private final AgendamentoUseCase agendamentoUseCase;
     private final ConsultarHorarioUseCase horarioUseCase;
+    private final CentroConsultaPort centros;
 
     public AgendamentoMeController(AgendamentoUseCase agendamentoUseCase,
-                                   ConsultarHorarioUseCase horariosUseCase) {
+                                   ConsultarHorarioUseCase horariosUseCase,
+                                   CentroConsultaPort centros) {
+        this.centros = centros;
         this.agendamentoUseCase = agendamentoUseCase;
         this.horarioUseCase = horariosUseCase;
     }
@@ -53,8 +57,9 @@ public class AgendamentoMeController {
     @GetMapping
     public ResponseEntity<List<AgendamentoResponse>> meusAgendamentos(
             @RequestHeader(JwtAuthenticationFilter.HEADER_DOADOR) UUID doadorId) {
+        String centroNome = centros.nomeDoCentroAtual();
         return ResponseEntity.ok(agendamentoUseCase.listarDoDoador(doadorId).stream()
-                .map(AgendamentoResponse::de).toList());
+                .map(a -> AgendamentoResponse.de(a, centroNome)).toList());
     }
 
     @PatchMapping("/{id}/cancelar")

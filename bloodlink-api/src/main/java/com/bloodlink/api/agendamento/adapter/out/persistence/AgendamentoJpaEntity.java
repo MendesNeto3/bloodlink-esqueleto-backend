@@ -1,8 +1,8 @@
 package com.bloodlink.api.agendamento.adapter.out.persistence;
 
 import com.bloodlink.api.agendamento.domain.Agendamento;
-import com.bloodlink.api.agendamento.domain.OrigemAgendamento;
-import com.bloodlink.api.agendamento.domain.StatusAgendamento;
+import com.bloodlink.api.agendamento.domain.enums.OrigemAgendamento;
+import com.bloodlink.api.agendamento.domain.enums.StatusAgendamento;
 import jakarta.persistence.*;
 
 import java.time.Instant;

@@ -1,5 +1,6 @@
 package com.bloodlink.api.doador.adapter.in.web;
 
+import com.bloodlink.api.agendamento.application.port.out.CentroConsultaPort;
 import com.bloodlink.api.doador.adapter.in.web.dto.AtualizarMeuPerfilRequest;
 import com.bloodlink.api.doador.adapter.in.web.dto.DoadorResponse;
 import com.bloodlink.api.doador.adapter.in.web.dto.FichaPreDoacaoRequest;
@@ -25,19 +26,22 @@ public class DoadorMeController {
     private final FichaPreDoacaoUseCase fichaUseCase;
     private final AtualizarPerfilDoadorUseCase perfilUseCase;
     private final ObterResumoDoadorUseCase obterResumoDoadorUseCase;
+    private final CentroConsultaPort centros;
 
     public DoadorMeController(ConsultarDoadorUseCase consultarUseCase,
                               ConsultarElegibilidadeUseCase elegibilidadeUseCase,
                               DoacaoUseCase doacaoUseCase,
                               FichaPreDoacaoUseCase fichaUseCase,
                               AtualizarPerfilDoadorUseCase perfilUseCase,
-                              ObterResumoDoadorUseCase  obterResumoDoadorUseCase) {
+                              ObterResumoDoadorUseCase  obterResumoDoadorUseCase,
+                              CentroConsultaPort centros) {
         this.consultarUseCase = consultarUseCase;
         this.elegibilidadeUseCase = elegibilidadeUseCase;
         this.doacaoUseCase = doacaoUseCase;
         this.fichaUseCase = fichaUseCase;
         this.perfilUseCase = perfilUseCase;
         this.obterResumoDoadorUseCase = obterResumoDoadorUseCase;
+        this.centros = centros;
     }
 
     @GetMapping
@@ -88,6 +92,8 @@ public class DoadorMeController {
     public ResponseEntity<ResumoDoadorResponse> meuResumo(
             @RequestHeader(JwtAuthenticationFilter.HEADER_DOADOR) UUID doadorId,
             @RequestHeader(JwtAuthenticationFilter.HEADER_TENANT) String centroId) {
-        return ResponseEntity.ok(ResumoDoadorResponse.de(obterResumoDoadorUseCase.obter(doadorId), centroId));
+        // o nome vem depois da consulta ao banco, fora da transação do resumo
+        return ResponseEntity.ok(ResumoDoadorResponse.de(
+                obterResumoDoadorUseCase.obter(doadorId), centroId, centros.nomeDoCentroAtual()));
     }
 }

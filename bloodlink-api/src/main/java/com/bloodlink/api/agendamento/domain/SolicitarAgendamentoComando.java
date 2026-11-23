@@ -1,5 +1,7 @@
 package com.bloodlink.api.agendamento.domain;
 
+import com.bloodlink.api.agendamento.domain.enums.OrigemAgendamento;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;

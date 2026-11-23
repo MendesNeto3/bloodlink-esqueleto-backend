@@ -1,6 +1,6 @@
 package com.bloodlink.api.painel;
 
-import com.bloodlink.api.agendamento.domain.StatusAgendamento;
+import com.bloodlink.api.agendamento.domain.enums.StatusAgendamento;
 import com.bloodlink.api.painel.domain.PainelResumo;
 
 import java.time.LocalDate;
