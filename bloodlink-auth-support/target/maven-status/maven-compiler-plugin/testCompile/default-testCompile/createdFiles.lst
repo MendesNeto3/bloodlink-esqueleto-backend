@@ -1,0 +1,11 @@
+com\bloodlink\auth\usuario\application\service\AlterarSenhaServiceTest.class
+com\bloodlink\auth\usuario\application\service\AutenticacaoServiceTest.class
+com\bloodlink\auth\usuario\application\service\SolicitarRedefinicaoSenhaServiceTest.class
+com\bloodlink\auth\usuario\application\service\AtivarContaServiceTest.class
+com\bloodlink\auth\usuario\application\service\ValidarUsuarioTest.class
+com\bloodlink\auth\usuario\application\in\web\AuthControllerTest.class
+com\bloodlink\auth\usuario\application\service\CriarContaDoadorServiceTest.class
+com\bloodlink\auth\usuario\persistance\AreaAcessoTest.class
+com\bloodlink\auth\usuario\application\service\TokensOpacosETokenAtivacaoTest.class
+com\bloodlink\auth\usuario\UsuarioTest.class
+com\bloodlink\auth\usuario\application\service\RedefinirSenhaServiceTest.class

@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.bloodlink.api.doador.application.service.AutocadastroDoadorServiceTest
+-------------------------------------------------------------------------------
+Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.476 s -- in com.bloodlink.api.doador.application.service.AutocadastroDoadorServiceTest

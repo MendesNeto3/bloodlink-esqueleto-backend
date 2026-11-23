@@ -1,0 +1,16 @@
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\test\java\com\bloodlink\api\agendamento\application\service\AgendamentoServiceTest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\test\java\com\bloodlink\api\agendamento\application\service\ConfiguracaoAgendamentoTest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\test\java\com\bloodlink\api\agendamento\domain\AgendamentoTest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\test\java\com\bloodlink\api\doador\application\service\AutocadastroDoadorServiceTest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\test\java\com\bloodlink\api\doador\application\service\AutocadastroPersistenciaServiceTest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\test\java\com\bloodlink\api\doador\application\service\CalculadoraElegibilidadeTest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\test\java\com\bloodlink\api\doador\application\service\ValidacoesDoadorTest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\test\java\com\bloodlink\api\doador\domain\CpfTest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\test\java\com\bloodlink\api\doador\domain\TipoSanguineoESexoTest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\test\java\com\bloodlink\api\documento\adapter\out\antivirus\ClamAvAnalisadorTest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\test\java\com\bloodlink\api\documento\application\service\DocumentoServiceTest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\test\java\com\bloodlink\api\documento\application\service\FormatoArquivoTest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\test\java\com\bloodlink\api\documento\application\service\NomeArquivoTest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\test\java\com\bloodlink\api\painel\service\PainelServiceTest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\test\java\com\bloodlink\api\reserva\application\service\ReservaServiceTest.java
+C:\Users\mende\Downloads\bloodlink-esqueleto-backend\bloodlink-api\src\test\java\com\bloodlink\api\reserva\domain\ReservaTest.java

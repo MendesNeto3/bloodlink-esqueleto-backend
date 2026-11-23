@@ -1,6 +1,6 @@
 package com.bloodlink.api.painel.service;
 
-import com.bloodlink.api.agendamento.domain.StatusAgendamento;
+import com.bloodlink.api.agendamento.domain.enums.StatusAgendamento;
 import com.bloodlink.api.doador.adapter.out.persistence.DoacaoRepositoryPort;
 import com.bloodlink.api.doador.adapter.out.persistence.ImpedimentoRepositoryPort;
 import com.bloodlink.api.doador.application.port.in.DoadorRepositoryPort;
@@ -13,7 +13,7 @@ import com.bloodlink.api.doador.domain.Doador;
 import com.bloodlink.api.painel.PainelRepositoryPort;
 import com.bloodlink.api.painel.domain.PainelResumo;
 import com.bloodlink.api.painel.usecase.PainelUseCase;
-import com.bloodlink.api.shared.log.MascaraLog;
+import com.bloodlink.common.log.MascaraLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -35,7 +35,7 @@ public class PainelService implements PainelUseCase {
     private static final Logger log = LoggerFactory.getLogger(PainelService.class);
     private static final List<StatusAgendamento> ATIVOS =
             List.of(StatusAgendamento.PENDENTE, StatusAgendamento.CONFIRMADO);
-    private static final int LIMITE_MAXIMO_RECENTES = 20;
+    static final int LIMITE_MAXIMO_RECENTES = 20;
     private static final int PROXIMAS_COLETAS = 5;
 
     private final PainelRepositoryPort painel;
@@ -79,14 +79,15 @@ public class PainelService implements PainelUseCase {
             var agendamentos = new PainelResumo.Agendamentos(
                     painel.contarAgendamentos(hoje, hoje.plusDays(6), ATIVOS),
                     painel.contarAgendamentos(hoje, hoje, List.of(StatusAgendamento.CONFIRMADO)),
-                    painel.contarAgendamentos(hoje, hoje.plusYears(1), List.of(StatusAgendamento.PENDENTE)));
+                    painel.contarAgendamentos(hoje, hoje.plusYears(1), List.of(StatusAgendamento.PENDENTE)),
+                    painel.contarAgendamentos(hoje, hoje, ATIVOS));
 
             var coletas = new PainelResumo.Coletas(
                     mesEscolhido,
                     painel.diasComColeta(mesEscolhido.atDay(1), mesEscolhido.atEndOfMonth()),
                     painel.proximasColetas(hoje, PROXIMAS_COLETAS));
 
-            return new PainelResumo(hoje,
+            return new PainelResumo(hoje, null,
                     new PainelResumo.Doacoes(doacoesHoje, ultimos7, anteriores7, variacao, doacoesMes),
                     doadoresCont, agendamentos, coletas, recentes(limite));
         } catch (RuntimeException e) {
