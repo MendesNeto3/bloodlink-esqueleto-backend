@@ -5,6 +5,13 @@ server:
       enabled: false   # a URI pode conter e-mail, nome ou CPF
 
 spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:dev_only}
+      timeout: 500ms          # comando lento ou Redis fora: o cache vira "miss" e a requisição segue
+      connect-timeout: 1s
   application:
     name: bloodlink-auth
   datasource:
@@ -37,12 +44,18 @@ bloodlink:
   front:
     url: ${BLOODLINK_FRONT_URL:http://localhost:3000}   # base do link de ativação enviado ao doador
   auth:
+    login:
+      max-tentativas: 5          # falhas seguidas antes de bloquear o e-mail
+      bloqueio-minutos: 15       # duração do bloqueio (janela contada a partir da primeira falha)
     admin-inicial:                          # usado só se ainda não existir ADMIN_PLATAFORMA
       email: ${BLOODLINK_ADMIN_EMAIL:}
       senha: ${BLOODLINK_ADMIN_SENHA:}
       nome: Administrador da Plataforma
     ativacao:
       validade: 48h                         # tempo de vida do link de ativação da conta do doador
+    redefinicao:
+      validade: 1h                          # tempo de vida do link de redefinição de senha
+      max-por-hora: 3                       # pedidos de link por conta, por hora (acima: ignorados em silêncio)
 
 logging:
   level:
@@ -60,3 +73,6 @@ management:
   endpoint:
     health:
       show-details: never
+  health:
+    redis:
+      enabled: false   # o Redis é só cache/limite e o sistema funciona sem ele; não derruba o health

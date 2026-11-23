@@ -5,6 +5,13 @@ server:
       enabled: false   # a URI pode conter e-mail, nome ou CPF
 
 spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:dev_only}
+      timeout: 500ms          # comando lento ou Redis fora: o cache vira "miss" e a requisição segue
+      connect-timeout: 1s
   application:
     name: bloodlink-centro
   datasource:
@@ -38,6 +45,8 @@ bloodlink:
   jwt:
     # o mesmo segredo do Auth e da API; sem valor padrão, a aplicação não sobe sem ele
     segredo: ${BLOODLINK_JWT_SEGREDO}
+  servico:
+    chave: ${BLOODLINK_SERVICO_CHAVE:}    # o MESMO valor da API e do Auth; vazia = rota /internal/** fechada
 
 logging:
   level:
@@ -55,3 +64,6 @@ management:
   endpoint:
     health:
       show-details: never
+  health:
+    redis:
+      enabled: false   # o Redis é só cache/limite e o sistema funciona sem ele; não derruba o health

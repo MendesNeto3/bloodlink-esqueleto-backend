@@ -22,18 +22,6 @@ spring:
         multiTenancy: SCHEMA
   flyway:
     enabled: false # a tabela checkin é criada pelas migrations tenant da API (V11)
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
-    listener:
-      simple:
-        retry:
-          enabled: true
-          max-attempts: 3
-          initial-interval: 2000
-        default-requeue-rejected: false
 
 bloodlink:
   jwt:

@@ -12,6 +12,7 @@
     <properties>
         <spring-cloud.version>2023.0.3</spring-cloud.version>
     </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -21,28 +22,35 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-                <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-    </dependencies>
+        </dependencies>
     </dependencyManagement>
+
+    <!--
+        O gateway é reativo (WebFlux). Por isso NÃO depende de bloodlink-common nem de bloodlink-auth-support:
+        o auth-support traz spring-boot-starter-web (servlet), JPA e Flyway, e o Spring Cloud Gateway não
+        sobe com o servlet no classpath. O gateway também não usa nenhuma classe desses módulos.
+    -->
     <dependencies>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bloodlink</groupId>
-            <artifactId>bloodlink-common</artifactId>
-            <version>0.1.0</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+        <!-- Rate limit do gateway (estado compartilhado entre instâncias) -->
         <dependency>
-            <groupId>com.bloodlink</groupId>
-            <artifactId>bloodlink-auth-support</artifactId>
-            <version>0.1.0</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
+        </dependency>
+            <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>

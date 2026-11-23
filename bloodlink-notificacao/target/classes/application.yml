@@ -27,6 +27,12 @@ spring:
           starttls:
             enable: false
 
+bloodlink:
+  notificacao:
+    remetente: ${BLOODLINK_MAIL_REMETENTE:nao-responder@bloodlink.local}
+    alerta-estoque:
+      destino: ${BLOODLINK_ALERTA_ESTOQUE_DESTINO:estoque@bloodlink.local}
+
 management:
   endpoints:
     web:

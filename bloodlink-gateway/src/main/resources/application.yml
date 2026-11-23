@@ -2,34 +2,95 @@ server:
   port: 8000 # o frontend fala só com essa porta — nunca direto com um serviço
 
 spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:dev_only}
+      timeout: 500ms          # comando lento ou Redis fora: o cache vira "miss" e a requisição segue
+      connect-timeout: 1s
   application:
     name: bloodlink-gateway
   cloud:
     gateway:
+      # CORS só aqui: os serviços não respondem a navegador, quem fala com o front é o gateway.
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "${BLOODLINK_FRONT_URL:http://localhost:3000}"
+            allowedMethods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
+            allowedHeaders: "*"
+            exposedHeaders: [Retry-After]   # o front lê o tempo de espera do 429 do login
+            maxAge: 3600
+
+      default-filters:
+        # A chave das rotas internas nunca entra por fora, mesmo que alguém envie o cabeçalho.
+        - RemoveRequestHeader=X-Servico-Chave
+        # Limite de requisições por IP, contado no Redis (vale para todas as rotas).
+        # Se o Redis cair, o gateway deixa passar em vez de derrubar o sistema.
+        # Estourou o limite: HTTP 429 (o gateway responde sem corpo).
+        - name: RequestRateLimiter
+          args:
+            key-resolver: "#{@ipKeyResolver}"
+            redis-rate-limiter.replenishRate: 10     # requisições por segundo, em média
+            redis-rate-limiter.burstCapacity: 20     # pico permitido
+            redis-rate-limiter.requestedTokens: 1
+
+      # Só o que está listado aqui é exposto. Rotas /internal/** NÃO existem de propósito:
+      # são chamadas entre serviços e o gateway responde 404 para elas.
+      # Os endereços valem para os serviços rodando na máquina (mvn spring-boot:run); em Docker,
+      # troque pelas variáveis BLOODLINK_*_URL (ex.: http://bloodlink-api:8080).
       routes:
-        - id: agendamentos
-          uri: http://bloodlink-api:8080
+        # Rota pública de escrita: limite bem menor que o das demais, por IP (acima dele: HTTP 429).
+        - id: api-publico
+          uri: ${BLOODLINK_API_URL:http://localhost:8080}
           predicates:
-            - Path=/api/agendamentos/**
+            - Path=/api/publico/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@ipKeyResolver}"
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 5
+                redis-rate-limiter.requestedTokens: 1
+
+        - id: api
+          uri: ${BLOODLINK_API_URL:http://localhost:8080}
+          predicates:
+            - Path=/api/agendamentos/**,/api/doadores/**,/api/painel/**,/api/tenants/**,/api/documentos/**,/api/reservas/**
 
         - id: estoque
-          uri: http://bloodlink-estoque:8082
+          uri: ${BLOODLINK_ESTOQUE_URL:http://localhost:8082}
           predicates:
             - Path=/api/estoque/**
 
         - id: checkin
-          uri: http://bloodlink-checkin:8083
+          uri: ${BLOODLINK_CHECKIN_URL:http://localhost:8083}
           predicates:
             - Path=/api/checkin/**
 
         - id: centros
-          uri: http://bloodlink-centro:8084
+          uri: ${BLOODLINK_CENTRO_URL:http://localhost:8084}
           predicates:
             - Path=/api/centros/**
 
-      # rotas /internal/** NÃO são registradas aqui de propósito — só devem
-      # ser alcançáveis dentro da rede interna (docker network), nunca
-      # passando pelo Gateway público. Ver README.
+        # Recuperação de senha: pública e dispara e-mail, então tem o mesmo limite apertado por IP.
+        - id: auth-recuperacao
+          uri: ${BLOODLINK_AUTH_URL:http://localhost:8085}
+          predicates:
+            - Path=/auth/esqueci-senha,/auth/redefinir-senha
+          filters:
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@ipKeyResolver}"
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 5
+                redis-rate-limiter.requestedTokens: 1
+
+        - id: auth
+          uri: ${BLOODLINK_AUTH_URL:http://localhost:8085}
+          predicates:
+            - Path=/auth/**,/api/usuarios/**
 
 management:
   endpoints:
@@ -39,3 +100,6 @@ management:
   endpoint:
     health:
       show-details: never # não vazar detalhes de infra numa rota pública
+  health:
+    redis:
+      enabled: false   # o Redis é só cache/limite e o sistema funciona sem ele; não derruba o health

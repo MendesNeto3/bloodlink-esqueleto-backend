@@ -2,8 +2,21 @@ server:
   port: 8080
 
 spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:dev_only}
+      timeout: 500ms          # comando lento ou Redis fora: o cache vira "miss" e a requisição segue
+      connect-timeout: 1s
   application:
     name: bloodlink-api
+
+  servlet:
+    multipart:
+      max-file-size: 10MB        # limite de cada arquivo de documento
+      max-request-size: 11MB
+      resolve-lazily: true       # arquivo grande demais vira o JSON de erro padrão (HTTP 413), não a página do servidor
 
   # A API só valida JWT. Sem isso o Spring Boot gera um usuário padrão com senha aleatória.
   autoconfigure:
@@ -44,6 +57,7 @@ spring:
     port: 5672
     username: guest
     password: guest
+    connection-timeout: 2s
     listener:
       simple:
         default-requeue-rejected: false  # falha definitiva não volta para a fila (vai para a DLQ)
@@ -61,16 +75,36 @@ bloodlink:
     segredo: ${BLOODLINK_JWT_SEGREDO}
   auth:
     url: ${BLOODLINK_AUTH_URL:http://localhost:8085}   # onde a API chama o Auth para criar a conta do convite
+  centro:
+    url: ${BLOODLINK_CENTRO_URL:http://localhost:8084}   # rota interna /internal/centros/{id}, para o nome do hemocentro nos e-mails
   servico:
     chave: ${BLOODLINK_SERVICO_CHAVE:}                 # o MESMO valor do Auth; vazia = o convite falha
   tenant:
     migrar-na-subida: true             # dev/homologação: true. Produção: decida (ver conversa sobre readiness)
+  armazenamento:
+    # Arquivos dos documentos. Dev: MinIO do docker-compose. Produção: deixe o endpoint vazio (AWS S3)
+    # e, sem chaves, a API usa a identidade do ambiente (papel IAM).
+    endpoint: ${BLOODLINK_ARMAZENAMENTO_ENDPOINT:http://localhost:9000}
+    regiao: ${BLOODLINK_ARMAZENAMENTO_REGIAO:us-east-1}
+    bucket: ${BLOODLINK_ARMAZENAMENTO_BUCKET:bloodlink-documentos}
+    chave-acesso: ${BLOODLINK_ARMAZENAMENTO_CHAVE_ACESSO:bloodlink}
+    chave-secreta: ${BLOODLINK_ARMAZENAMENTO_CHAVE_SECRETA:bloodlink_dev_only}
+    path-style: ${BLOODLINK_ARMAZENAMENTO_PATH_STYLE:true}                  # MinIO exige true; S3 da AWS usa false
+    criptografia-no-servidor: ${BLOODLINK_ARMAZENAMENTO_CRIPTOGRAFIA:false}  # AWS: true. O MinIO de dev não tem KMS
+  antivirus:
+    # Verificação de vírus dos documentos (ClamAV). Dev: desligada. Produção: ligue; com ela ligada, arquivo
+    # que não puder ser verificado é recusado.
+    habilitado: ${BLOODLINK_ANTIVIRUS_HABILITADO:false}
+    host: ${BLOODLINK_ANTIVIRUS_HOST:localhost}
+    porta: ${BLOODLINK_ANTIVIRUS_PORTA:3310}
+    timeout-segundos: ${BLOODLINK_ANTIVIRUS_TIMEOUT:30}
   agendamento:
     horarios: "08:00,09:00,10:00,11:00,13:00,14:00,15:00,16:00"
     vagas-por-horario: 3
     antecedencia-minima-dias: 1
     janela-maxima-dias: 60
     dias-atendimento: "SEG,TER,QUA,QUI,SEX"
+    lembrete-cron: "0 0 7 * * *"       # horário (America/Sao_Paulo) do lembrete do dia
 
 logging:
   level:
@@ -84,6 +118,9 @@ management:
   endpoint:
     health:
       show-details: never # não vazar detalhes de infra numa rota pública
+  health:
+    redis:
+      enabled: false   # o Redis é só cache/limite e o sistema funciona sem ele; não derruba o health
 
 resilience4j:
   circuitbreaker:
@@ -93,6 +130,8 @@ resilience4j:
         failure-rate-threshold: 50       # abre o circuito se 50% das últimas 10 chamadas falharem
         wait-duration-in-open-state: 15s # espera 15s antes de tentar de novo
         permitted-number-of-calls-in-half-open-state: 3
+        ignore-exceptions:               # 404/403 do Centro (id inexistente, chave errada) não é o Centro fora do ar
+          - org.springframework.web.client.HttpClientErrorException
       estoque:
         sliding-window-size: 10
         failure-rate-threshold: 50

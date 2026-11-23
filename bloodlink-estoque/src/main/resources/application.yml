@@ -2,6 +2,13 @@ server:
   port: 8082
 
 spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:dev_only}
+      timeout: 500ms          # comando lento ou Redis fora: o cache vira "miss" e a requisição segue
+      connect-timeout: 1s
   application:
     name: bloodlink-estoque
   # só valida JWT; sem isso o Spring gera um usuário padrão com senha aleatória
@@ -27,13 +34,8 @@ spring:
     port: 5672
     username: guest
     password: guest
-    listener:
-      simple:
-        retry:
-          enabled: true
-          max-attempts: 3
-          initial-interval: 2000
-        default-requeue-rejected: false
+    # o Estoque só publica: sem broker, a baixa não pode ficar presa esperando conexão
+    connection-timeout: 2s
 
 bloodlink:
   jwt:
@@ -41,7 +43,8 @@ bloodlink:
     segredo: ${BLOODLINK_JWT_SEGREDO}
   estoque:
     validade-padrao-dias: 42
-
+    validade-maxima-dias: 365 # teto da validade, contado a partir da coleta
+    dias-alerta-vencimento: 7 # janela do "vencendo em breve" no resumo
 management:
   endpoints:
     web:
@@ -50,3 +53,6 @@ management:
   endpoint:
     health:
       show-details: never # não vazar detalhes de infra numa rota pública
+  health:
+    redis:
+      enabled: false   # o Redis é só cache/limite e o sistema funciona sem ele; não derruba o health
