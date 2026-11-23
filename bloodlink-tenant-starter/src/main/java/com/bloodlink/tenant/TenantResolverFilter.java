@@ -20,8 +20,9 @@ public class TenantResolverFilter extends OncePerRequestFilter {
     private static final String PREFIXO_SCHEMA = "centro_";
     // os 12 hexadecimais que vêm depois de "centro_" no nome do schema
     private static final Pattern TENANT_ID_VALIDO = Pattern.compile("[a-f0-9]{12}");
-    // rotas que trabalham no schema public e não precisam de tenant
-    private static final List<String> CAMINHOS_SEM_TENANT = List.of("/api/tenants/", "/actuator/");
+    // rotas que trabalham no schema public e não precisam de tenant;
+    // /api/publico/ define o tenant sozinha (o hemocentro vem no corpo, não em cabeçalho)
+    private static final List<String> CAMINHOS_SEM_TENANT = List.of("/api/tenants/", "/actuator/", "/api/publico/");
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
