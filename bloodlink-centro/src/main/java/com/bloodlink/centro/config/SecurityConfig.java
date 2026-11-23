@@ -48,6 +48,9 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/api/centros/publicos").permitAll()
 
+                        // entre serviços: não passa pelo gateway e o próprio controller exige a chave de serviço
+                        .requestMatchers(HttpMethod.GET, "/internal/centros/*").permitAll()
+
                         .requestMatchers(HttpMethod.PATCH, "/api/centros/*/desativar")
                         .hasRole("ADMIN_PLATAFORMA")
 

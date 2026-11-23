@@ -3,6 +3,8 @@ package com.bloodlink.auth.usuario.application.in.web;
 import com.bloodlink.auth.shared.exceptions.AcessoNegadoException;
 import com.bloodlink.auth.usuario.application.in.AtivarContaUseCase;
 import com.bloodlink.auth.usuario.application.in.CriarContaDoadorUseCase;
+import com.bloodlink.auth.usuario.application.in.RedefinirSenhaUseCase;
+import com.bloodlink.auth.usuario.application.in.SolicitarRedefinicaoSenhaUseCase;
 import com.bloodlink.auth.usuario.application.out.AutenticacaoUseCase;
 import com.bloodlink.auth.usuario.application.out.RenovarTokenUseCase;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,17 +28,23 @@ public class AuthController {
     private final RenovarTokenUseCase renovar;
     private final AtivarContaUseCase ativarConta;
     private final CriarContaDoadorUseCase criarContaDoador;
+    private final SolicitarRedefinicaoSenhaUseCase solicitarRedefinicao;
+    private final RedefinirSenhaUseCase redefinirSenha;
     private final byte[] chaveServico;
 
     public AuthController(AutenticacaoUseCase autenticacao,
                           RenovarTokenUseCase renovar,
                           AtivarContaUseCase ativarConta,
                           CriarContaDoadorUseCase criarContaDoador,
+                          SolicitarRedefinicaoSenhaUseCase solicitarRedefinicao,
+                          RedefinirSenhaUseCase redefinirSenha,
                           @Value("${bloodlink.servico.chave:}") String chaveServico) {
         this.autenticacao = autenticacao;
         this.renovar = renovar;
         this.ativarConta = ativarConta;
         this.criarContaDoador = criarContaDoador;
+        this.solicitarRedefinicao = solicitarRedefinicao;
+        this.redefinirSenha = redefinirSenha;
         this.chaveServico = chaveServico.getBytes(StandardCharsets.UTF_8);
     }
 
@@ -64,6 +72,25 @@ public class AuthController {
     public ResponseEntity<Void> ativar(@RequestBody AtivarContaRequest request) {
         exigirCorpo(request);
         ativarConta.ativar(request.paraComando());
+        return ResponseEntity.noContent().build();
+    }
+
+    static final String MENSAGEM_ESQUECI_SENHA = "Se houver uma conta com este e-mail, enviamos um link "
+            + "para criar uma nova senha. Ele vale por pouco tempo.";
+
+    /** Pública: a resposta é sempre a mesma, para não revelar quais e-mails têm conta. */
+    @PostMapping("/auth/esqueci-senha")
+    public ResponseEntity<MensagemResponse> esqueciSenha(@RequestBody EsqueciSenhaRequest request) {
+        exigirCorpo(request);
+        solicitarRedefinicao.solicitar(request.email());
+        return ResponseEntity.accepted().body(new MensagemResponse(MENSAGEM_ESQUECI_SENHA));
+    }
+
+    /** Pública: define a nova senha com o token recebido por e-mail. */
+    @PostMapping("/auth/redefinir-senha")
+    public ResponseEntity<Void> redefinirSenha(@RequestBody RedefinirSenhaRequest request) {
+        exigirCorpo(request);
+        redefinirSenha.redefinir(request.paraComando());
         return ResponseEntity.noContent().build();
     }
 

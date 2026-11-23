@@ -43,6 +43,13 @@ public class UsuarioExceptionHandler {
         return resposta(HttpStatus.UNAUTHORIZED, e.getMessage(), req);
     }
 
+    @ExceptionHandler(MuitasTentativasException.class)
+    public ResponseEntity<Map<String, Object>> muitasTentativas(MuitasTentativasException e, HttpServletRequest req) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("Retry-After", String.valueOf(e.segundosParaLiberar()))
+                .body(resposta(HttpStatus.TOO_MANY_REQUESTS, e.getMessage(), req).getBody());
+    }
+
     @ExceptionHandler(AcessoNegadoException.class)
     public ResponseEntity<Map<String, Object>> acessoNegado(AcessoNegadoException e, HttpServletRequest req) {
         return resposta(HttpStatus.FORBIDDEN, e.getMessage(), req);

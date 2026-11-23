@@ -2,10 +2,12 @@ package com.bloodlink.auth.usuario.application.service;
 
 import com.bloodlink.auth.autenticacao.application.out.RefreshTokenRepositoryPort;
 import com.bloodlink.auth.shared.exceptions.CredenciaisInvalidasException;
+import com.bloodlink.auth.shared.exceptions.MuitasTentativasException;
 import com.bloodlink.auth.shared.exceptions.OperacaoAutenticacaoException;
 import com.bloodlink.auth.usuario.Usuario;
 import com.bloodlink.auth.usuario.application.in.web.LoginCommand;
 import com.bloodlink.auth.usuario.application.out.AutenticacaoUseCase;
+import com.bloodlink.auth.usuario.application.out.TentativasLoginPort;
 
 import com.bloodlink.auth.usuario.application.out.TokensEmitidos;
 import com.bloodlink.auth.usuario.application.out.UsuarioRepositoryPort;
@@ -33,14 +35,17 @@ public class AutenticacaoService implements AutenticacaoUseCase {
     private final RefreshTokenRepositoryPort refreshRepository;
     private final PasswordEncoder encoder;
     private final EmissaoDeTokens emissao;
+    private final TentativasLoginPort tentativas;
     /** Hash descartável para gastar o mesmo tempo quando o e-mail não existe (evita enumerar usuários). */
     private final String hashFalso;
 
-    public AutenticacaoService(UsuarioRepositoryPort usuarioRepository, RefreshTokenRepositoryPort refreshRepository, PasswordEncoder encoder, EmissaoDeTokens emissao) {
+    public AutenticacaoService(UsuarioRepositoryPort usuarioRepository, RefreshTokenRepositoryPort refreshRepository, PasswordEncoder encoder, EmissaoDeTokens emissao,
+                              TentativasLoginPort tentativas) {
         this.usuarioRepository = usuarioRepository;
         this.refreshRepository = refreshRepository;
         this.encoder = encoder;
         this.emissao = emissao;
+        this.tentativas = tentativas;
         this.hashFalso = encoder.encode("senha-descartavel-para-tempo-constante");
     }
 
@@ -52,6 +57,13 @@ public class AutenticacaoService implements AutenticacaoUseCase {
         }
 
         String email = comando.email().trim().toLowerCase(Locale.ROOT);
+
+        // Bloqueio vale para qualquer e-mail digitado, exista ou não: não revela quais contas existem.
+        long segundosDeBloqueio = tentativas.segundosDeBloqueio(email);
+        if (segundosDeBloqueio > 0) {
+            log.warn("Tentativa de login recusada: e-mail bloqueado por excesso de tentativas");
+            throw new MuitasTentativasException(segundosDeBloqueio);
+        }
 
         Optional<Usuario> encontrado = buscar(email);
 
@@ -67,10 +79,12 @@ public class AutenticacaoService implements AutenticacaoUseCase {
 
         if (encontrado.isEmpty() || !senhaConfere || !encontrado.get().podeLogar() || !areaConfere) {
             log.warn("Tentativa de login rejeitada");
+            tentativas.registrarFalha(email);
             throw new CredenciaisInvalidasException(MENSAGEM_INVALIDA);
         }
 
         Usuario usuario = encontrado.get();
+        tentativas.limpar(email);
         TokensEmitidos tokens = emissao.emitir(usuario, "realizar o login");
         log.info("Login do usuário {} (papel={})", usuario.id(), usuario.papel());
         return tokens;

@@ -14,6 +14,8 @@ public interface TokenAtivacaoJpaRepository extends JpaRepository<TokenAtivacaoJ
 
     Optional<TokenAtivacaoJpaEntity> findByTokenHash(String tokenHash);
 
+    long countByUsuarioIdAndCriadoEmAfter(UUID usuarioId, Instant desde);
+
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("update TokenAtivacaoJpaEntity t set t.usadoEm = :agora "
             + "where t.id = :id and t.usadoEm is null and t.expiraEm > :agora")

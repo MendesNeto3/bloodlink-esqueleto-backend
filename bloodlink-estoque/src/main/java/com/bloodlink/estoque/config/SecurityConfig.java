@@ -49,6 +49,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/estoque/resumo", "/api/estoque/lotes")
                         .hasAnyRole("ADMIN_CENTRO", "RECEPCAO", "ENFERMEIRO")
 
+                        .requestMatchers(HttpMethod.GET, "/api/estoque/movimentacoes")
+                        .hasAnyRole("ADMIN_CENTRO", "ENFERMEIRO")
+
                         .requestMatchers(HttpMethod.POST, "/api/estoque/lotes", "/api/estoque/baixas")
                         .hasAnyRole("ADMIN_CENTRO", "ENFERMEIRO")
 

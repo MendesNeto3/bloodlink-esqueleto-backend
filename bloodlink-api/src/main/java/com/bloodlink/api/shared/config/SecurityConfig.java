@@ -46,14 +46,37 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/error", "/actuator/health", "/actuator/info").permitAll()
 
+                        // autocadastro do doador: única rota de escrita aberta (sem token); o hemocentro vem no corpo
+                        .requestMatchers(HttpMethod.POST, "/api/publico/doadores/autocadastro").permitAll()
+
                         .requestMatchers("/api/tenants/provisionamentos/**").hasRole("ADMIN_PLATAFORMA")
 
                         // área do próprio doador (o id vem do token): doador e agendamentos dele.
                         // Tem que vir ANTES das regras da equipe: /api/agendamentos/me também casa com /api/agendamentos/*
                         .requestMatchers("/api/doadores/me", "/api/doadores/me/**").hasRole("DOADOR")
                         .requestMatchers("/api/agendamentos/me", "/api/agendamentos/me/**").hasRole("DOADOR")
+                        // documentos do próprio doador (também antes das regras da equipe)
+                        .requestMatchers("/api/documentos/me", "/api/documentos/me/**").hasRole("DOADOR")
+
+                        // painel do hemocentro: só a equipe (resumo de agendamentos, doações e estoque)
+                        .requestMatchers(HttpMethod.GET, "/api/painel")
+                        .hasAnyRole("ADMIN_CENTRO", "RECEPCAO", "ENFERMEIRO")
+
+                        // ---- documentos (equipe): exame e ficha são dado de saúde ----
+                        .requestMatchers(HttpMethod.POST, "/api/documentos")
+                        .hasAnyRole("ADMIN_CENTRO", "RECEPCAO", "ENFERMEIRO")
+                        .requestMatchers(HttpMethod.GET, "/api/documentos", "/api/documentos/*/arquivo")
+                        .hasAnyRole("ADMIN_CENTRO", "ENFERMEIRO")
+
+                        // ---- reservas de unidades para hospitais ----
+                        .requestMatchers(HttpMethod.POST, "/api/reservas").hasAnyRole("ADMIN_CENTRO", "ENFERMEIRO")
+                        .requestMatchers(HttpMethod.GET, "/api/reservas")
+                        .hasAnyRole("ADMIN_CENTRO", "RECEPCAO", "ENFERMEIRO")
+                        .requestMatchers(HttpMethod.PATCH, "/api/reservas/*/liberar")
+                        .hasAnyRole("ADMIN_CENTRO", "ENFERMEIRO")
 
                         // ---- agendamentos (equipe) ----
+                        .requestMatchers(HttpMethod.POST, "/api/agendamentos/lembretes").hasRole("ADMIN_CENTRO")
                         .requestMatchers(HttpMethod.POST, "/api/agendamentos")
                         .hasAnyRole("ADMIN_CENTRO", "RECEPCAO")
                         .requestMatchers(HttpMethod.GET, "/api/agendamentos", "/api/agendamentos/*")

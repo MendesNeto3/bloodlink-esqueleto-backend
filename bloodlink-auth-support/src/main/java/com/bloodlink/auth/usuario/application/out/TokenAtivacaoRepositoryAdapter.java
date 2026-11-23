@@ -36,4 +36,9 @@ public class TokenAtivacaoRepositoryAdapter implements TokenAtivacaoRepositoryPo
     public void invalidarPendentesDoUsuario(UUID usuarioId, Instant agora) {
         jpa.invalidarPendentes(usuarioId, agora);
     }
+
+    @Override
+    public long contarCriadosDesde(UUID usuarioId, Instant desde) {
+        return jpa.countByUsuarioIdAndCriadoEmAfter(usuarioId, desde);
+    }
 }

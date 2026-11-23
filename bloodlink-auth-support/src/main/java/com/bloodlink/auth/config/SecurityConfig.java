@@ -52,9 +52,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/error", "/actuator/health", "/actuator/info").permitAll()
 
-                        // login, renovação, saída e ativação da conta: públicos
+                        // login, renovação, saída, ativação da conta e recuperação de senha: públicos
                         .requestMatchers(HttpMethod.POST,
-                                "/auth/login", "/auth/refresh", "/auth/logout", "/auth/ativar").permitAll()
+                                "/auth/login", "/auth/refresh", "/auth/logout", "/auth/ativar",
+                                "/auth/esqueci-senha", "/auth/redefinir-senha").permitAll()
 
                         // rotas entre serviços: a chave X-Servico-Chave é conferida no controller.
                         // O gateway precisa bloquear /internal/** para fora.

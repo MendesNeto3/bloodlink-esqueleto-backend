@@ -15,4 +15,7 @@ public interface TokenAtivacaoRepositoryPort {
     boolean marcarUsadoSeDisponivel(UUID id, Instant agora);
 
     void invalidarPendentesDoUsuario(UUID usuarioId, Instant agora);
+
+    /** Quantos tokens (usados ou não) o usuário pediu desde o instante informado. */
+    long contarCriadosDesde(UUID usuarioId, Instant desde);
 }
