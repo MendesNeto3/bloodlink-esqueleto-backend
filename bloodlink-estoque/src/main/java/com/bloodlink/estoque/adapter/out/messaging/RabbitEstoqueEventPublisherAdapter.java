@@ -46,7 +46,7 @@ public class RabbitEstoqueEventPublisherAdapter implements EstoqueEventosPort {
             }
         };
 
-        // só depois do commit: se a baixa for desfeita, o alerta não sai
+        // só depois do commit: se a operação for desfeita, o alerta não sai
         if (TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override

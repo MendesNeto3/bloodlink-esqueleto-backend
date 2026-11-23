@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body style="font-family: sans-serif; color: #0F0F0F;">
+    <h2>Alerta de estoque crítico</h2>
+    <p>O estoque de sangue de um centro chegou ao nível crítico:</p>
+    <ul>
+        <li><strong>Centro:</strong> <span th:text="${centro}">CTR-000000</span></li>
+        <li><strong>Tipo sanguíneo:</strong> <span th:text="${rotulo}">O-</span></li>
+        <li><strong>Unidades disponíveis:</strong> <span th:text="${unidades}">0</span></li>
+        <li><strong>Limiar crítico:</strong> <span th:text="${limiar}">0</span></li>
+    </ul>
+    <p>Considere convocar doadores deste tipo sanguíneo.</p>
+</body>
+</html>

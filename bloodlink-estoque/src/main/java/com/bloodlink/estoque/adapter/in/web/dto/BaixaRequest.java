@@ -1,4 +1,5 @@
 package com.bloodlink.estoque.adapter.in.web.dto;
 
-public record BaixaRequest(String tipoSanguineo, Integer quantidadeUnidades) {
+/** motivo é opcional (TRANSFUSAO, DESCARTE ou OUTRO); sem ele a baixa vale como OUTRO. */
+public record BaixaRequest(String tipoSanguineo, Integer quantidadeUnidades, String motivo) {
 }

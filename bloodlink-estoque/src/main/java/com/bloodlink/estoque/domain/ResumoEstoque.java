@@ -8,8 +8,12 @@ public record ResumoEstoque(Geral geral, List<String> tiposCriticos, List<PorTip
     public record Geral(long unidades, long meta, int percentual, int criticos, long vencendoEm7Dias) {
     }
 
+    /** Abaixo deste percentual da meta (e acima do limiar crítico) o tipo fica em ATENCAO. */
+    public static final int PERCENTUAL_ATENCAO = 70;
+
+    /** situacao: ESTAVEL, ATENCAO ou CRITICO. */
     public record PorTipo(String tipoSanguineo, String rotulo, long unidades, int meta, int percentual,
-                          int limiarCritico, boolean critico, long vencendoEm7Dias) {
+                          int limiarCritico, boolean critico, long vencendoEm7Dias, String situacao) {
     }
 
     public static ResumoEstoque de(List<SituacaoTipo> situacoes) {
@@ -17,7 +21,8 @@ public record ResumoEstoque(Geral geral, List<String> tiposCriticos, List<PorTip
                 .sorted(Comparator.comparingInt(s -> s.tipo().ordinal()))
                 .map(s -> new PorTipo(s.tipo().name(), s.tipo().rotulo(), s.unidades(), s.meta(),
                         percentual(s.unidades(), s.meta()), s.limiarCritico(),
-                        s.unidades() <= s.limiarCritico(), s.vencendoEmBreve()))
+                        s.unidades() <= s.limiarCritico(), s.vencendoEmBreve(),
+                        situacao(s.unidades(), s.meta(), s.limiarCritico())))
                 .toList();
         long unidades = tipos.stream().mapToLong(PorTipo::unidades).sum();
         long meta = tipos.stream().mapToLong(PorTipo::meta).sum();
@@ -26,6 +31,13 @@ public record ResumoEstoque(Geral geral, List<String> tiposCriticos, List<PorTip
         return new ResumoEstoque(
                 new Geral(unidades, meta, percentual(unidades, meta), criticos.size(), vencendo),
                 criticos, tipos);
+    }
+
+    private static String situacao(long unidades, int meta, int limiarCritico) {
+        if (unidades <= limiarCritico) {
+            return "CRITICO";
+        }
+        return percentual(unidades, meta) < PERCENTUAL_ATENCAO ? "ATENCAO" : "ESTAVEL";
     }
 
     private static int percentual(long unidades, long meta) {
