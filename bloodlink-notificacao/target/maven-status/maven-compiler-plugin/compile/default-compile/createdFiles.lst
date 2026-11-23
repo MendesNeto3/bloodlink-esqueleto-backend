@@ -1,1 +1,7 @@
 com\bloodlink\notificacao\BloodlinkNotificacaoApplication.class
+com\bloodlink\notificacao\listener\EstoqueCriticoListener.class
+com\bloodlink\notificacao\listener\LembreteDoacaoListener.class
+com\bloodlink\notificacao\config\RabbitConfig.class
+com\bloodlink\notificacao\service\EmailDoadorService.class
+com\bloodlink\notificacao\listener\AgendamentoConfirmadoListener.class
+com\bloodlink\notificacao\service\AlertaEstoqueService.class
